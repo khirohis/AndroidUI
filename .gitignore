@@ -16,6 +16,12 @@ gen/
 .gradle/
 build/
 
+# Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
 # Local configuration file (sdk path, etc)
 local.properties
 
@@ -24,3 +30,7 @@ proguard/
 
 # Log Files
 *.log
+
+# Mac
+.DS_Store
+
