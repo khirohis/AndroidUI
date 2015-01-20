@@ -1,4 +1,4 @@
-package net.hogelab.android.androidui;
+package net.hogelab.android.androidui.navigationdrawer;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import net.hogelab.android.androidui.R;
 
 /**
  * Created by hirohisa on 2015/01/02.
