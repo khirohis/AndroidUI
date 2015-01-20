@@ -19,8 +19,13 @@
         </activity>
 
         <activity
-            android:name=".TestNavigationDrawerActivity"
+            android:name=".navigationdrawer.TestNavigationDrawerActivity"
             android:label="AndroidUI Navigation Drawer" >
+        </activity>
+
+        <activity
+            android:name=".musicreceiver.TestMusicReceiverActivity"
+            android:label="AndroidUI Music Receiver" >
         </activity>
     </application>
 
