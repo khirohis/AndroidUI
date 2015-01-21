@@ -19,11 +19,12 @@ public class TestMusicPlayerService extends Service
         implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener {
+
     private static final String TAG = TestMusicPlayerService.class.getSimpleName();
 
 
     public class TestMusicPlayerBinder extends Binder {
-        TestMusicPlayerService getService() {
+        public TestMusicPlayerService getService() {
             return TestMusicPlayerService.this;
         }
     }

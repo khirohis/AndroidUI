@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import net.hogelab.android.androidui.musicplayer.TestMusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.TestMusicReceiverActivity;
 import net.hogelab.android.androidui.navigationdrawer.TestNavigationDrawerActivity;
 
@@ -23,6 +24,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String[] items = {
             "Navigation Drawer",
             "Music Receiver",
+            "Music Player"
     };
 
 
@@ -95,6 +97,10 @@ public class MainActivity extends ActionBarActivity {
                             onSelectTestMusicReceiver();
                             break;
 
+                        case 2:
+                            onSelectTestMusicPlayer();
+                            break;
+
                         default:
                             break;
                     }
@@ -109,6 +115,11 @@ public class MainActivity extends ActionBarActivity {
 
         private void onSelectTestMusicReceiver() {
             Intent intent = new Intent(getActivity(), TestMusicReceiverActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectTestMusicPlayer() {
+            Intent intent = new Intent(getActivity(), TestMusicPlayerActivity.class);
             startActivity(intent);
         }
     }
