@@ -11,7 +11,7 @@ import android.util.Log;
  * Created by kobayasi on 2015/01/20.
  */
 public class TestMusicReceiver extends BroadcastReceiver {
-    private final String TAG = TestMusicReceiver.class.getSimpleName();
+    private static final String TAG = TestMusicReceiver.class.getSimpleName();
 
     public static final String ACTION_METACHANGED = "com.android.music.metachanged";
     public static final String ACTION_PLAYSTATECHANGED = "com.android.music.playstatechanged";

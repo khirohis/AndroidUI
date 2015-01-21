@@ -19,7 +19,7 @@ import java.util.Locale;
  * Created by kobayasi on 2015/01/20.
  */
 public class TestMusicReceiverActivity extends ActionBarActivity {
-    private final String TAG = TestMusicReceiverActivity.class.getSimpleName();
+    private static final String TAG = TestMusicReceiverActivity.class.getSimpleName();
 
 
     @Override
