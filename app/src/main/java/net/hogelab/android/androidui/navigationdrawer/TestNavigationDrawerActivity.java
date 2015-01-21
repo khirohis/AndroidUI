@@ -18,6 +18,8 @@ import net.hogelab.android.androidui.R;
  * Created by hirohisa on 2015/01/02.
  */
 public class TestNavigationDrawerActivity extends ActionBarActivity {
+    private static final String TAG = TestNavigationDrawerActivity.class.getSimpleName();
+
 
     private Toolbar mToolbar;
     private ActionBarDrawerToggle mDrawerToggle;

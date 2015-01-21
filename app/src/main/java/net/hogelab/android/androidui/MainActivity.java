@@ -17,6 +17,8 @@ import net.hogelab.android.androidui.navigationdrawer.TestNavigationDrawerActivi
 
 
 public class MainActivity extends ActionBarActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
+
 
     private static final String[] items = {
             "Navigation Drawer",
