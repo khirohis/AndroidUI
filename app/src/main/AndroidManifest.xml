@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.hogelab.android.androidui" >
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -26,6 +28,11 @@
         <activity
             android:name=".musicreceiver.TestMusicReceiverActivity"
             android:label="AndroidUI Music Receiver" >
+        </activity>
+
+        <activity
+            android:name=".musicplayer.TestMusicPlayerActivity"
+            android:label="AndroidUI Music Player" >
         </activity>
     </application>
 
