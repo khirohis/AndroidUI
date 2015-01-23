@@ -14,7 +14,7 @@ public class Album {
     public String           artist;
     public int              numberOfSongs;
 
-    public static final String[] FIELDS = {
+    public static final String[] FIELDS_PROJECTION = {
             MediaStore.Audio.Albums._ID,
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ALBUM_ART,
