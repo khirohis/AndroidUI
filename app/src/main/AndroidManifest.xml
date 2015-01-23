@@ -41,7 +41,7 @@
             android:label="AndroidUI Player" >
         </activity>
 
-        <service android:name=".musicplayer.TestMusicPlayerService" />
+        <service android:name=".musicplayer.PlayerService" />
     </application>
 
 </manifest>

@@ -59,7 +59,7 @@ public class PlayerActivity extends ActionBarActivity {
         private final int TRACK_LOADER_ID = 0;
 
         private boolean mPlayerServiceBound;
-        private TestMusicPlayerService mPlayerService;
+        private PlayerService mPlayerService;
 
         private Track mTrackData;
 
@@ -95,7 +95,7 @@ public class PlayerActivity extends ActionBarActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            Intent intent = new Intent(getActivity(), TestMusicPlayerService.class);
+            Intent intent = new Intent(getActivity(), PlayerService.class);
             getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
             getActivity().startService(intent);
         }
@@ -122,7 +122,7 @@ public class PlayerActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected");
 
-            TestMusicPlayerService.TestMusicPlayerBinder binder = (TestMusicPlayerService.TestMusicPlayerBinder)service;
+            PlayerService.TestMusicPlayerBinder binder = (PlayerService.TestMusicPlayerBinder)service;
             mPlayerService = binder.getService();
             mPlayerServiceBound = true;
 
