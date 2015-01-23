@@ -4,13 +4,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import net.hogelab.android.androidui.R;
+import net.hogelab.android.androidui.musicplayer.entity.Track;
+
+import java.io.IOException;
 
 /**
  * Created by kobayasi on 2015/01/21.
@@ -32,6 +33,7 @@ public class TestMusicPlayerService extends Service
 
     private final IBinder mBinder = new TestMusicPlayerBinder();
     private MediaPlayer mPlayer;
+    private Track mTrackData;
 
 
     @Override
@@ -41,11 +43,6 @@ public class TestMusicPlayerService extends Service
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (mPlayer != null) {
-            cleanupPlayer(mPlayer);
-            mPlayer = null;
-        }
-
         return false;
     }
 
@@ -89,15 +86,67 @@ public class TestMusicPlayerService extends Service
 
     @Override
     public void onPrepared(MediaPlayer player) {
+        Log.d(TAG, "onPrepared");
+
+        player.start();
     }
 
     @Override
     public void onCompletion(MediaPlayer player) {
+        Log.d(TAG, "onCompletion");
     }
 
     @Override
     public boolean onError(MediaPlayer player, int what, int extra) {
+        Log.d(TAG, "onError");
+
         return false;
+    }
+
+
+    // play control
+
+    public boolean startPlay(Track trackData) {
+        boolean result = false;
+
+        mTrackData = trackData;
+
+        if (mPlayer.isPlaying()) {
+            mPlayer.stop();
+        }
+
+        try {
+            mPlayer.setDataSource(mTrackData.data);
+            mPlayer.prepareAsync();
+
+            result = true;
+        } catch (IOException e) {
+        }
+
+        return result;
+    }
+
+    public void restart() {
+        mPlayer.seekTo(0);
+        mPlayer.start();
+    }
+
+    public void stop() {
+        if (mPlayer.isPlaying()) {
+            mPlayer.stop();
+        }
+    }
+
+    public void pause() {
+        if (mPlayer.isPlaying()) {
+            mPlayer.pause();
+        }
+    }
+
+    public void resume() {
+        if (!mPlayer.isPlaying()) {
+            mPlayer.start();
+        }
     }
 
 
@@ -113,7 +162,10 @@ public class TestMusicPlayerService extends Service
     }
 
     private void cleanupPlayer(MediaPlayer player) {
-        player.stop();
+        if (player.isPlaying()) {
+            player.stop();
+        }
+
         player.release();
     }
 }

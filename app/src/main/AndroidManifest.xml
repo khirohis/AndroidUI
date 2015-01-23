@@ -3,6 +3,7 @@
     package="net.hogelab.android.androidui" >
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -34,6 +35,13 @@
             android:name=".musicplayer.TestMusicPlayerActivity"
             android:label="AndroidUI Music Player" >
         </activity>
+
+        <activity
+            android:name=".musicplayer.PlayerActivity"
+            android:label="AndroidUI Player" >
+        </activity>
+
+        <service android:name=".musicplayer.TestMusicPlayerService" />
     </application>
 
 </manifest>
