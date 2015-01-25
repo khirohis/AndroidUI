@@ -47,6 +47,8 @@ public class PlayerService extends Service
 
     private AudioManager mAudioManager;
 
+    private PlayerControlManager mPlayerControlManager;
+
     private MediaPlayer mPlayer;
     private Track mTrackData;
 
@@ -68,12 +70,47 @@ public class PlayerService extends Service
 
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
+        mPlayerControlManager = new PlayerControlManager(this);
+        mPlayerControlManager.startControl();
+
         mPlayer = new MediaPlayer();
         initializePlayer(mPlayer);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if (action != null) {
+            switch (action) {
+
+                case ACTION_PLAY:
+                    start();
+                    break;
+
+                case ACTION_STOP:
+                    stop();
+                    break;
+
+                case ACTION_PAUSE:
+                    pause();
+                    break;
+
+                case ACTION_TOGGLE_PLAYBACK:
+                    toggle();
+                    break;
+
+                case ACTION_SKIP:
+                    skip();
+                    break;
+
+                case ACTION_REWIND:
+                    rewind();
+                    break;
+                default:
+                    Log.d(TAG, "Unknown Action: " + action);
+            }
+        }
+
         return START_NOT_STICKY;
     }
 
@@ -83,6 +120,8 @@ public class PlayerService extends Service
             cleanupPlayer(mPlayer);
             mPlayer = null;
         }
+
+        mPlayerControlManager.stopControl();
 
         super.onDestroy();
     }
@@ -106,6 +145,8 @@ public class PlayerService extends Service
         Log.d(TAG, "onPrepared");
 
         player.start();
+
+        mPlayerControlManager.setPlayState(PlayerControlManager.PlayState.PLAYSTATE_PLAYING, mTrackData);
     }
 
     @Override
@@ -113,6 +154,8 @@ public class PlayerService extends Service
         Log.d(TAG, "onCompletion");
 
         mAudioManager.abandonAudioFocus(this);
+
+        mPlayerControlManager.setPlayState(PlayerControlManager.PlayState.PLAYSTATE_STOPPED, mTrackData);
     }
 
     @Override
@@ -163,6 +206,8 @@ public class PlayerService extends Service
         mPlayer.reset();
 
         try {
+            mPlayerControlManager.setMetadata(mTrackData);
+
             mPlayer.setDataSource(mTrackData.data);
             mPlayer.prepareAsync();
 
@@ -173,21 +218,27 @@ public class PlayerService extends Service
         return result;
     }
 
+    public void start() {
+        if (!mPlayer.isPlaying()) {
+            mPlayer.start();
+
+            mPlayerControlManager.setPlayState(PlayerControlManager.PlayState.PLAYSTATE_PLAYING, mTrackData);
+        }
+    }
+
     public void stop() {
         if (mPlayer.isPlaying()) {
             mPlayer.stop();
+
+            mPlayerControlManager.setPlayState(PlayerControlManager.PlayState.PLAYSTATE_STOPPED, mTrackData);
         }
     }
 
     public void pause() {
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
-        }
-    }
 
-    public void resume() {
-        if (!mPlayer.isPlaying()) {
-            mPlayer.start();
+            mPlayerControlManager.setPlayState(PlayerControlManager.PlayState.PLAYSTATE_PAUSED, mTrackData);
         }
     }
 
@@ -200,6 +251,8 @@ public class PlayerService extends Service
     public void rewind() {
         mPlayer.seekTo(0);
         mPlayer.start();
+
+        mPlayerControlManager.setPlayState(PlayerControlManager.PlayState.PLAYSTATE_PLAYING, mTrackData);
     }
 
 
