@@ -11,15 +11,17 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
+import android.media.session.MediaSession;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.os.Build;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import net.hogelab.android.androidui.R;
 import net.hogelab.android.androidui.musicplayer.entity.Track;
 
 /**
@@ -139,12 +141,17 @@ public class PlayerControlManager {
         intent.setAction(PlayerService.ACTION_STOP);
         PendingIntent pendingIntent = PendingIntent.getService(mPlayerService.getApplicationContext(), 1, intent, 0);
 
+        Notification.MediaStyle style = new Notification.MediaStyle();
+        MediaSession session = (MediaSession) mMediaSession.getMediaSession();
+        style.setMediaSession(session.getSessionToken());
+
         Notification.Builder builder = new Notification.Builder(mPlayerService)
-//                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("Title")
                 .setContentText("Artist")
                 .setDeleteIntent(pendingIntent)
-                .setStyle(new Notification.MediaStyle());
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setStyle(style);
 
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_previous, "Previous", PlayerService.ACTION_PREVIOUS));
         builder.addAction(createControlAction(android.R.drawable.ic_media_rew, "Rewind", PlayerService.ACTION_REWIND));
@@ -165,13 +172,8 @@ public class PlayerControlManager {
 
 
     private void startMediaSession() {
+//        http://stackoverflow.com/questions/27209596/media-style-notification-not-working-after-update-to-android-5-0
         mMediaSession = new MediaSessionCompat(mPlayerService, "test session");
-        try {
-            mMediaController = new MediaControllerCompat(mPlayerService, mMediaSession.getSessionToken());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-
         mMediaSession.setCallback(new MediaSessionCompat.Callback() {
 
             @Override
@@ -220,9 +222,21 @@ public class PlayerControlManager {
                 super.onSeekTo(pos);
             }
         });
+
+        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
+        mMediaSession.setActive(true);
+
+        try {
+            mMediaController = new MediaControllerCompat(mPlayerService, mMediaSession.getSessionToken());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     private void stopMediaSession() {
+        mMediaSession.setActive(false);
         mMediaSession.release();
     }
 
