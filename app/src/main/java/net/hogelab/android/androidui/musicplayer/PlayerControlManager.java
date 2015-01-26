@@ -12,6 +12,7 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.os.RemoteException;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.os.Build;
@@ -86,7 +87,7 @@ public class PlayerControlManager {
         sendBroadcast(ACTION_MUSIC_PLAYSTATECHANGED, track);
 
         if (mHasMediaSession) {
-            setPlayStateMediaSession(state, track);
+            setPlayStateMediaSession(state);
         }
 
         if (mHasRemoteControlClient) {
@@ -96,6 +97,10 @@ public class PlayerControlManager {
 
     public void setMetadata(Track track) {
         sendBroadcast(ACTION_MUSIC_METACHANGED, track);
+
+        if (mHasMediaSession) {
+            setMetadataMediaSession(track);
+        }
 
         if (mHasRemoteControlClient) {
             setMetadataRemoteControlClient(track);
@@ -107,9 +112,9 @@ public class PlayerControlManager {
         Intent intent = new Intent(action);
 
         intent.putExtra("id", Long.valueOf(track.id));
+        intent.putExtra("track", track.title);
         intent.putExtra("artist", track.artist);
         intent.putExtra("album", track.album);
-        intent.putExtra("track", track.title);
         intent.putExtra("playing", Boolean.valueOf(true));
         intent.putExtra("ListSize", Integer.valueOf(1));
         intent.putExtra("duration", track.duration);
@@ -221,24 +226,61 @@ public class PlayerControlManager {
         mMediaSession.release();
     }
 
+    private void setPlayStateMediaSession(PlayState state) {
+        PlaybackStateCompat playbackState = null;
+        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
 
-    private void setPlayStateMediaSession(PlayState state, Track track) {
         switch (state) {
+
             case PLAYSTATE_PLAYING:
+                builder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f);
+                builder.setActions(PlaybackStateCompat.ACTION_PAUSE |
+                                PlaybackStateCompat.ACTION_STOP |
+                                PlaybackStateCompat.ACTION_REWIND |
+                                PlaybackStateCompat.ACTION_FAST_FORWARD |
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                                PlaybackStateCompat.ACTION_SEEK_TO);
+                playbackState = builder.build();
+                break;
+
+            case PLAYSTATE_PAUSED:
+                builder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 1.0f);
+                builder.setActions(PlaybackStateCompat.ACTION_PLAY |
+                        PlaybackStateCompat.ACTION_STOP |
+                        PlaybackStateCompat.ACTION_REWIND |
+                        PlaybackStateCompat.ACTION_FAST_FORWARD |
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                        PlaybackStateCompat.ACTION_SEEK_TO);
+                playbackState = builder.build();
+                break;
+
+            case PLAYSTATE_STOPPED:
+                builder.setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f);
+                builder.setActions(PlaybackStateCompat.ACTION_PLAY |
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT);
+                playbackState = builder.build();
+                break;
+
+            default:
                 break;
         }
 
-        /* builder
-        PlaybackStateCompat st = new PlaybackStateCompat(
-                PlaybackStateCompat.STATE_PLAYING,
-                0,
-                0,
-                1.0f,
-                0,
-                null,
-                1);
-        mMediaSession.setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
-        */
+        if (playbackState != null) {
+            mMediaSession.setPlaybackState(playbackState);
+        }
+    }
+
+    private void setMetadataMediaSession(Track track) {
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration);
+
+        mMediaSession.setMetadata(builder.build());
     }
 
 
@@ -258,8 +300,7 @@ public class PlayerControlManager {
         mRemoteControlClient = new RemoteControlClient(pendingIntent);
         audioManager.registerRemoteControlClient(mRemoteControlClient);
 
-        mRemoteControlClient.setTransportControlFlags(
-                RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+        mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                         RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
                         RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
                         RemoteControlClient.FLAG_KEY_MEDIA_STOP);
