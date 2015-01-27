@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import net.hogelab.android.androidui.mediastylenotification.TestMediaStyleNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.TestMusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.TestMusicReceiverActivity;
 import net.hogelab.android.androidui.navigationdrawer.TestNavigationDrawerActivity;
@@ -24,6 +25,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String[] items = {
             "Navigation Drawer",
             "Music Receiver",
+            "Media Style Notification",
             "Music Player"
     };
 
@@ -89,6 +91,7 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     switch (position) {
+
                         case 0:
                             onSelectTestNavigationDrawer();
                             break;
@@ -98,6 +101,10 @@ public class MainActivity extends ActionBarActivity {
                             break;
 
                         case 2:
+                            onSelectTestMediaStyleNotification();
+                            break;
+
+                        case 3:
                             onSelectTestMusicPlayer();
                             break;
 
@@ -115,6 +122,11 @@ public class MainActivity extends ActionBarActivity {
 
         private void onSelectTestMusicReceiver() {
             Intent intent = new Intent(getActivity(), TestMusicReceiverActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectTestMediaStyleNotification() {
+            Intent intent = new Intent(getActivity(), TestMediaStyleNotificationActivity.class);
             startActivity(intent);
         }
 

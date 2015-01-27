@@ -36,14 +36,14 @@ public class PlayerService extends Service
     public static final float DUCK_VOLUME = 0.1f;
 
 
-    public class TestMusicPlayerBinder extends Binder {
+    public class PlayerBinder extends Binder {
         public PlayerService getService() {
             return PlayerService.this;
         }
     }
 
 
-    private final IBinder mBinder = new TestMusicPlayerBinder();
+    private final IBinder mBinder = new PlayerBinder();
 
     private AudioManager mAudioManager;
 
@@ -106,8 +106,10 @@ public class PlayerService extends Service
                 case ACTION_REWIND:
                     rewind();
                     break;
+
                 default:
                     Log.d(TAG, "Unknown Action: " + action);
+                    break;
             }
         }
 

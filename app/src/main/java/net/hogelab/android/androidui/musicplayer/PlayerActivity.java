@@ -122,7 +122,7 @@ public class PlayerActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected");
 
-            PlayerService.TestMusicPlayerBinder binder = (PlayerService.TestMusicPlayerBinder)service;
+            PlayerService.PlayerBinder binder = (PlayerService.PlayerBinder)service;
             mPlayerService = binder.getService();
             mPlayerServiceBound = true;
 

@@ -32,6 +32,11 @@
         </activity>
 
         <activity
+            android:name=".mediastylenotification.TestMediaStyleNotificationActivity"
+            android:label="AndroidUI Media Style Notification" >
+        </activity>
+
+        <activity
             android:name=".musicplayer.TestMusicPlayerActivity"
             android:label="AndroidUI Music Player" >
         </activity>
@@ -40,6 +45,17 @@
             android:name=".musicplayer.PlayerActivity"
             android:label="AndroidUI Player" >
         </activity>
+
+        <service android:name=".mediastylenotification.MediaStyleNotificationService">
+            <intent-filter>
+                <action android:name="net.hogelab.android.androidui.action.PLAY" />
+                <action android:name="net.hogelab.android.androidui.action.STOP" />
+                <action android:name="net.hogelab.android.androidui.action.PAUSE" />
+                <action android:name="net.hogelab.android.androidui.action.TOGGLE_PLAYBACK" />
+                <action android:name="net.hogelab.android.androidui.action.SKIP" />
+                <action android:name="net.hogelab.android.androidui.action.REWIND" />
+            </intent-filter>
+        </service>
 
         <service android:name=".musicplayer.PlayerService">
             <intent-filter>
