@@ -36,7 +36,8 @@ public class PlayerControlManager {
     public static final String ACTION_MUSIC_PLAYBACKCOMPLETE = "com.android.music.playbackcomplete";
     public static final String ACTION_MUSIC_QUEUECHANGED = "com.android.music.queuechanged";
 
-    public static final int NOTIFICATION_ID = 100;
+    private static final int MEDIA_STYLE_NOTIFICATION_ID = 1;
+    private static final int REQUEST_CODE_ACTION = 1;
 
     public enum PlayState {
         PLAYSTATE_PLAYING, PLAYSTATE_PAUSED, PLAYSTATE_STOPPED
@@ -49,9 +50,9 @@ public class PlayerControlManager {
     private boolean mHasRemoteControlClient;
 
     private MediaSessionCompat mMediaSession;
-    private MediaControllerCompat mMediaController;
 
     private ComponentName mMediaButtonReceiver;
+    @SuppressWarnings("deprecation")
     private RemoteControlClient mRemoteControlClient;
 
 
@@ -118,35 +119,44 @@ public class PlayerControlManager {
         intent.putExtra("artist", track.artist);
         intent.putExtra("album", track.album);
         intent.putExtra("playing", Boolean.valueOf(true));
-        intent.putExtra("ListSize", Integer.valueOf(1));
-        intent.putExtra("duration", track.duration);
+        intent.putExtra("ListSize", Long.valueOf(1));
+        intent.putExtra("duration", Long.valueOf(track.duration));
         intent.putExtra("position", Long.valueOf(1));
+        intent.putExtra("isfavorite", Boolean.valueOf(false));
+        intent.putExtra("shuffleMode", Integer.valueOf(0));
+        intent.putExtra("repeatMode", Integer.valueOf(0));
 
         mPlayerService.sendBroadcast(intent);
     }
 
+    private PendingIntent createControlActionIntent(String action) {
+        Intent intent = new Intent(action);
+        ComponentName serviceName = new ComponentName(mPlayerService, PlayerService.class);
+        intent.setComponent(serviceName);
 
-    @TargetApi(21)
-    private Notification.Action createControlAction(int resourceId, String title, String action) {
-        Intent intent = new Intent(mPlayerService.getApplicationContext(), PlayerService.class);
-        intent.setAction(action);
-        PendingIntent pendingIntent = PendingIntent.getService(mPlayerService.getApplicationContext(), 1, intent, 0);
-
-        return new Notification.Action.Builder(resourceId, title, pendingIntent).build();
+        return PendingIntent.getService(mPlayerService, REQUEST_CODE_ACTION, intent, 0);
     }
 
     @TargetApi(21)
-    private void sendNotification(Notification.Action action) {
-        Intent intent = new Intent(mPlayerService.getApplicationContext(), PlayerService.class);
-        intent.setAction(PlayerService.ACTION_STOP);
-        PendingIntent pendingIntent = PendingIntent.getService(mPlayerService.getApplicationContext(), 1, intent, 0);
+    private Notification.Action createControlAction(int resourceId, String title, String action) {
+        PendingIntent intent = createControlActionIntent(action);
 
-        Notification.MediaStyle style = new Notification.MediaStyle();
+        return new Notification.Action.Builder(resourceId, title, intent).build();
+    }
+
+    @TargetApi(21)
+    private void notifyMediaStyle() {
+        PendingIntent pendingIntent = createControlActionIntent(PlayerService.ACTION_STOP);
+
         MediaSession session = (MediaSession) mMediaSession.getMediaSession();
-        style.setMediaSession(session.getSessionToken());
+        Notification.MediaStyle style = new Notification.MediaStyle()
+                .setMediaSession(session.getSessionToken())
+                .setShowActionsInCompactView(0);
 
         Notification.Builder builder = new Notification.Builder(mPlayerService)
+                .setShowWhen(false)
                 .setSmallIcon(R.drawable.ic_launcher)
+//                .setLargeIcon(artwork)
                 .setContentTitle("Title")
                 .setContentText("Artist")
                 .setDeleteIntent(pendingIntent)
@@ -155,39 +165,33 @@ public class PlayerControlManager {
 
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_previous, "Previous", PlayerService.ACTION_PREVIOUS));
         builder.addAction(createControlAction(android.R.drawable.ic_media_rew, "Rewind", PlayerService.ACTION_REWIND));
-        builder.addAction(action);
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_ff, "Fast Foward", PlayerService.ACTION_FAST_FORWARD));
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_next, "Next", PlayerService.ACTION_NEXT));
 
         NotificationManager notificationManager = (NotificationManager) mPlayerService.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        notificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, builder.build());
     }
 
     private void cancelNotification() {
         NotificationManager notificationManager = (NotificationManager) mPlayerService.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFICATION_ID);
+        notificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
 
         mPlayerService.startService(new Intent(PlayerService.ACTION_STOP));
     }
 
 
     private void startMediaSession() {
-//        http://stackoverflow.com/questions/27209596/media-style-notification-not-working-after-update-to-android-5-0
         mMediaSession = new MediaSessionCompat(mPlayerService, "test session");
         mMediaSession.setCallback(new MediaSessionCompat.Callback() {
 
             @Override
             public void onPlay() {
                 super.onPlay();
-
-                sendNotification(createControlAction(android.R.drawable.ic_media_pause, "Pause", PlayerService.ACTION_PAUSE));
             }
 
             @Override
             public void onPause() {
                 super.onPause();
-
-                sendNotification(createControlAction(android.R.drawable.ic_media_play, "Play", PlayerService.ACTION_PLAY));
             }
 
             @Override
@@ -228,11 +232,7 @@ public class PlayerControlManager {
         mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
         mMediaSession.setActive(true);
 
-        try {
-            mMediaController = new MediaControllerCompat(mPlayerService, mMediaSession.getSessionToken());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        notifyMediaStyle();
     }
 
     private void stopMediaSession() {
@@ -299,6 +299,7 @@ public class PlayerControlManager {
 
 
     @TargetApi(14)
+    @SuppressWarnings("deprecation")
     private void startRemoteControlClient() {
         AudioManager audioManager = (AudioManager) mPlayerService.getSystemService(Context.AUDIO_SERVICE);
 
@@ -321,6 +322,7 @@ public class PlayerControlManager {
     }
 
     @TargetApi(14)
+    @SuppressWarnings("deprecation")
     private void stopRemoteControlClient() {
         AudioManager audioManager = (AudioManager) mPlayerService.getSystemService(Context.AUDIO_SERVICE);
 
@@ -330,6 +332,7 @@ public class PlayerControlManager {
 
 
     @TargetApi(14)
+    @SuppressWarnings("deprecation")
     private void setPlayStateRemoteControlClient(PlayState state) {
         switch (state) {
 

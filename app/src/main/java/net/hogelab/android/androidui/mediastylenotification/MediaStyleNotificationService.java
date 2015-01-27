@@ -8,17 +8,14 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import net.hogelab.android.androidui.R;
-import net.hogelab.android.androidui.musicplayer.PlayerService;
 
 /**
  * Created by kobayasi on 2015/01/27.
@@ -34,6 +31,9 @@ public class MediaStyleNotificationService extends Service {
     public static final String ACTION_SKIP = "net.hogelab.android.androidui.action.SKIP";
     public static final String ACTION_REWIND = "net.hogelab.android.androidui.action.REWIND";
 
+    private static final int MEDIA_STYLE_NOTIFICATION_ID = 1;
+    private static final int REQUEST_CODE_ACTION = 1;
+
 
     public class MediaStyleNotificationBinder extends Binder {
         public MediaStyleNotificationService getService() {
@@ -41,17 +41,11 @@ public class MediaStyleNotificationService extends Service {
         }
     }
 
-    private static final int NOTIFICATION_ID = 1;
-
-    private enum NOTIFICATION_ACTION_ID {
-        NONE, PREVIOUS, PAUSE, NEXT
-    };
-
 
     private final IBinder mBinder = new MediaStyleNotificationBinder();
 
 
-    private MediaSession mMediaSession;
+    private MediaSessionCompat mMediaSession;
 
 
     @Override
@@ -65,7 +59,6 @@ public class MediaStyleNotificationService extends Service {
     }
 
 
-    @TargetApi(21)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -94,36 +87,36 @@ public class MediaStyleNotificationService extends Service {
         super.onDestroy();
     }
 
-    @TargetApi(21)
+
     public void startMediaSession() {
-        mMediaSession = new MediaSession(this, "Test Media Style Notification");
+        mMediaSession = new MediaSessionCompat(this, "Test Media Style Notification");
         mMediaSession.setCallback(new MediaSessionCallback(this));
-        mMediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
         mMediaSession.setActive(true);
     }
 
-    @TargetApi(21)
     public void stopMediaSession() {
         mMediaSession.setActive(false);
         mMediaSession.release();
     }
 
-    @TargetApi(21)
     public void setMetadata() {
-        mMediaSession.setMetadata(new MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, "Artist Title")
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, "Album Title")
-                .putString(MediaMetadata.METADATA_KEY_TITLE, "Track Title")
+        mMediaSession.setMetadata(new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "Artist Title")
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "Album Title")
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, "Track Title")
                 .build());
     }
 
     @TargetApi(21)
     public void notifyMediaStyle() {
+        MediaSession session = (MediaSession) mMediaSession.getMediaSession();
         Notification notification = new Notification.Builder(this)
                 .setShowWhen(false)
                 .setStyle(new Notification.MediaStyle()
-                        .setMediaSession(mMediaSession.getSessionToken())
+                        .setMediaSession(session.getSessionToken())
                         .setShowActionsInCompactView(0, 1, 2))
                 .setColor(0xFFCCCCCC)
 //                .setLargeIcon(artwork)
@@ -131,53 +124,31 @@ public class MediaStyleNotificationService extends Service {
                 .setContentText("Artist Title")
                 .setContentInfo("Album Title")
                 .setContentTitle("Track Title")
-                .addAction(android.R.drawable.ic_media_previous, "Prev", createAction(NOTIFICATION_ACTION_ID.PREVIOUS))
-                .addAction(android.R.drawable.ic_media_pause, "Pause", createAction(NOTIFICATION_ACTION_ID.PAUSE))
-                .addAction(android.R.drawable.ic_media_next, "Next", createAction(NOTIFICATION_ACTION_ID.NEXT))
+                .addAction(android.R.drawable.ic_media_previous, "Prev", createControlActionIntent(ACTION_REWIND))
+                .addAction(android.R.drawable.ic_media_pause, "Pause", createControlActionIntent(ACTION_TOGGLE_PLAYBACK))
+                .addAction(android.R.drawable.ic_media_next, "Next", createControlActionIntent(ACTION_SKIP))
                 .build();
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        notificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, notification);
     }
 
     public void cancelNotify() {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFICATION_ID);
+        notificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
     }
 
 
-    private PendingIntent createAction(NOTIFICATION_ACTION_ID actionId) {
-        PendingIntent pendingIntent = null;
-        Intent action;
+    private PendingIntent createControlActionIntent(String action) {
+        Intent intent = new Intent(action);
         ComponentName serviceName = new ComponentName(this, MediaStyleNotificationService.class);
+        intent.setComponent(serviceName);
 
-        switch (actionId) {
-
-            case PREVIOUS:
-                action = new Intent(ACTION_TOGGLE_PLAYBACK);
-                action.setComponent(serviceName);
-                pendingIntent = PendingIntent.getService(this, actionId.ordinal(), action, 0);
-                break;
-
-            case PAUSE:
-                action = new Intent(ACTION_PAUSE);
-                action.setComponent(serviceName);
-                pendingIntent = PendingIntent.getService(this, actionId.ordinal(), action, 0);
-                break;
-
-            case NEXT:
-                action = new Intent(ACTION_SKIP);
-                action.setComponent(serviceName);
-                pendingIntent = PendingIntent.getService(this, actionId.ordinal(), action, 0);
-                break;
-        }
-
-        return pendingIntent;
+        return PendingIntent.getService(this, REQUEST_CODE_ACTION, intent, 0);
     }
 
 
-    @TargetApi(21)
-    private static class MediaSessionCallback extends MediaSession.Callback {
+    private static class MediaSessionCallback extends MediaSessionCompat.Callback {
         private static final String TAG = MediaSessionCallback.class.getSimpleName();
 
 
