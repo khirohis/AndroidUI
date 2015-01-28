@@ -1,4 +1,4 @@
-package net.hogelab.android.androidui.mediastylenotification;
+package net.hogelab.android.androidui.mediacontrolandnotification;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,16 +18,16 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by kobayasi on 2015/01/27.
  */
-public class TestMediaStyleNotificationActivity extends ActionBarActivity {
+public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
 
-    private static final String TAG = TestMediaStyleNotificationActivity.class.getSimpleName();
+    private static final String TAG = TestMediaControlAndNotificationActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_testmediastylenotification);
+        setContentView(R.layout.activity_testmediacontrolandnotification);
 
         if (savedInstanceState == null) {
             PlaceholderFragment fragment = PlaceholderFragment.newInstance();
@@ -48,7 +48,7 @@ public class TestMediaStyleNotificationActivity extends ActionBarActivity {
 
 
         private boolean mMediaStyleNotificationServiceBound;
-        private MediaStyleNotificationService mMediaStyleNotificationService;
+        private MediaControlAndNotificationService mMediaStyleNotificationService;
 
 
         public static PlaceholderFragment newInstance() {
@@ -70,7 +70,7 @@ public class TestMediaStyleNotificationActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testmediastylenotification, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_testmediacontrolandnotification, container, false);
             return rootView;
         }
 
@@ -78,7 +78,7 @@ public class TestMediaStyleNotificationActivity extends ActionBarActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            Intent intent = new Intent(getActivity(), MediaStyleNotificationService.class);
+            Intent intent = new Intent(getActivity(), MediaControlAndNotificationService.class);
             getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
             getActivity().startService(intent);
         }
@@ -105,8 +105,8 @@ public class TestMediaStyleNotificationActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected");
 
-            MediaStyleNotificationService.MediaStyleNotificationBinder binder =
-                    (MediaStyleNotificationService.MediaStyleNotificationBinder)service;
+            MediaControlAndNotificationService.MediaStyleNotificationBinder binder =
+                    (MediaControlAndNotificationService.MediaStyleNotificationBinder)service;
             mMediaStyleNotificationService = binder.getService();
             mMediaStyleNotificationServiceBound = true;
         }

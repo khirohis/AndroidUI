@@ -1,4 +1,4 @@
-package net.hogelab.android.androidui.musicplayer;
+package net.hogelab.android.androidui.mediacontrolandnotification;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -20,19 +20,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import net.hogelab.android.androidui.R;
-import net.hogelab.android.androidui.musicplayer.entity.Track;
 
 /**
- * Created by kobayasi on 2015/01/23.
+ * Created by hirohisa on 2015/01/28.
  */
-public class PlayerControlManager {
-    private static final String TAG = PlayerControlManager.class.getSimpleName();
+public class ControlAndNotificationManager {
+    private static final String TAG = ControlAndNotificationManager.class.getSimpleName();
 
-
-    public static final String ACTION_MUSIC_METACHANGED = "com.android.music.metachanged";
-    public static final String ACTION_MUSIC_PLAYSTATECHANGED = "com.android.music.playstatechanged";
-    public static final String ACTION_MUSIC_PLAYBACKCOMPLETE = "com.android.music.playbackcomplete";
-    public static final String ACTION_MUSIC_QUEUECHANGED = "com.android.music.queuechanged";
 
     private static final int MEDIA_STYLE_NOTIFICATION_ID = 1;
     private static final int REQUEST_CODE_ACTION = 1;
@@ -42,7 +36,7 @@ public class PlayerControlManager {
     };
 
 
-    private PlayerService mPlayerService;
+    private Context mContext;
 
     private boolean mHasMediaSession;
     private boolean mHasRemoteControlClient;
@@ -54,8 +48,8 @@ public class PlayerControlManager {
     private RemoteControlClient mRemoteControlClient;
 
 
-    public PlayerControlManager(PlayerService service) {
-        mPlayerService = service;
+    public ControlAndNotificationManager(Context context) {
+        mContext = context;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mHasMediaSession = true;
@@ -84,8 +78,8 @@ public class PlayerControlManager {
         }
     }
 
-    public void setPlayState(PlayState state, Track track) {
-        sendBroadcast(ACTION_MUSIC_PLAYSTATECHANGED, track);
+    public void setPlayState(PlayState state, PlayingInfo info) {
+        sendBroadcast(PlayerAction.SYSTEM_PLAYSTATECHANGED, info);
 
         if (mHasMediaSession) {
             setPlayStateMediaSession(state);
@@ -96,43 +90,43 @@ public class PlayerControlManager {
         }
     }
 
-    public void setMetadata(Track track) {
-        sendBroadcast(ACTION_MUSIC_METACHANGED, track);
+    public void setMetadata(PlayingInfo info) {
+        sendBroadcast(PlayerAction.SYSTEM_METACHANGED, info);
 
         if (mHasMediaSession) {
-            setMetadataMediaSession(track);
+            setMetadataMediaSession(info);
         }
 
         if (mHasRemoteControlClient) {
-            setMetadataRemoteControlClient(track);
+            setMetadataRemoteControlClient(info);
         }
     }
 
 
-    private void sendBroadcast(String action, Track track) {
+    private void sendBroadcast(String action, PlayingInfo info) {
         Intent intent = new Intent(action);
 
-        intent.putExtra("id", Long.valueOf(track.id));
-        intent.putExtra("track", track.title);
-        intent.putExtra("artist", track.artist);
-        intent.putExtra("album", track.album);
+        intent.putExtra("id", Long.valueOf(info.id));
+        intent.putExtra("track", info.title);
+        intent.putExtra("artist", info.artist);
+        intent.putExtra("album", info.album);
         intent.putExtra("playing", Boolean.valueOf(true));
         intent.putExtra("ListSize", Long.valueOf(1));
-        intent.putExtra("duration", Long.valueOf(track.duration));
+        intent.putExtra("duration", Long.valueOf(info.duration));
         intent.putExtra("position", Long.valueOf(1));
         intent.putExtra("isfavorite", Boolean.valueOf(false));
         intent.putExtra("shuffleMode", Integer.valueOf(0));
         intent.putExtra("repeatMode", Integer.valueOf(0));
 
-        mPlayerService.sendBroadcast(intent);
+        mContext.sendBroadcast(intent);
     }
 
     private PendingIntent createControlActionIntent(String action) {
         Intent intent = new Intent(action);
-        ComponentName serviceName = new ComponentName(mPlayerService, PlayerService.class);
+        ComponentName serviceName = new ComponentName(mContext, MediaControlAndNotificationService.class);
         intent.setComponent(serviceName);
 
-        return PendingIntent.getService(mPlayerService, REQUEST_CODE_ACTION, intent, 0);
+        return PendingIntent.getService(mContext, REQUEST_CODE_ACTION, intent, 0);
     }
 
     @TargetApi(21)
@@ -144,17 +138,18 @@ public class PlayerControlManager {
 
     @TargetApi(21)
     private void notifyMediaStyle() {
-        PendingIntent pendingIntent = createControlActionIntent(PlayerService.ACTION_STOP);
+        PendingIntent pendingIntent = createControlActionIntent(PlayerAction.STOP);
 
         MediaSession session = (MediaSession) mMediaSession.getMediaSession();
         Notification.MediaStyle style = new Notification.MediaStyle()
                 .setMediaSession(session.getSessionToken())
                 .setShowActionsInCompactView(0);
 
-        Notification.Builder builder = new Notification.Builder(mPlayerService)
+        Notification.Builder builder = new Notification.Builder(mContext)
                 .setShowWhen(false)
                 .setSmallIcon(R.drawable.ic_launcher)
 //                .setLargeIcon(artwork)
+                .setColor(0xFFCCCCCC)
                 .setContentTitle("Title")
                 .setContentText("Artist")
                 .setDeleteIntent(pendingIntent)
@@ -162,74 +157,31 @@ public class PlayerControlManager {
                 .setStyle(style);
 
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_previous, "Previous", PlayerService.ACTION_PREVIOUS));
-        builder.addAction(createControlAction(android.R.drawable.ic_media_rew, "Rewind", PlayerService.ACTION_REWIND));
+        builder.addAction(createControlAction(android.R.drawable.ic_media_rew, "Rewind", PlayerAction.REWIND));
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_ff, "Fast Foward", PlayerService.ACTION_FAST_FORWARD));
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_next, "Next", PlayerService.ACTION_NEXT));
 
-        NotificationManager notificationManager = (NotificationManager) mPlayerService.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, builder.build());
     }
 
     private void cancelNotification() {
-        NotificationManager notificationManager = (NotificationManager) mPlayerService.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
 
-        mPlayerService.startService(new Intent(PlayerService.ACTION_STOP));
+        mContext.startService(new Intent(PlayerAction.STOP));
     }
 
 
     private void startMediaSession() {
-        mMediaSession = new MediaSessionCompat(mPlayerService, "test session");
-        mMediaSession.setCallback(new MediaSessionCompat.Callback() {
-
-            @Override
-            public void onPlay() {
-                super.onPlay();
-            }
-
-            @Override
-            public void onPause() {
-                super.onPause();
-            }
-
-            @Override
-            public void onSkipToNext() {
-                super.onSkipToNext();
-            }
-
-            @Override
-            public void onSkipToPrevious() {
-                super.onSkipToPrevious();
-            }
-
-            @Override
-            public void onFastForward() {
-                super.onFastForward();
-            }
-
-            @Override
-            public void onRewind() {
-                super.onRewind();
-            }
-
-            @Override
-            public void onStop() {
-                super.onStop();
-
-                cancelNotification();
-            }
-
-            @Override
-            public void onSeekTo(long pos) {
-                super.onSeekTo(pos);
-            }
-        });
-
+        mMediaSession = new MediaSessionCompat(mContext, "test session");
+        mMediaSession.setCallback(new MediaSessionCallback(this));
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
         mMediaSession.setActive(true);
 
+        // TODO: 違うところで
         notifyMediaStyle();
     }
 
@@ -247,12 +199,12 @@ public class PlayerControlManager {
             case PLAYSTATE_PLAYING:
                 builder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f);
                 builder.setActions(PlaybackStateCompat.ACTION_PAUSE |
-                                PlaybackStateCompat.ACTION_STOP |
-                                PlaybackStateCompat.ACTION_REWIND |
-                                PlaybackStateCompat.ACTION_FAST_FORWARD |
-                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
-                                PlaybackStateCompat.ACTION_SEEK_TO);
+                        PlaybackStateCompat.ACTION_STOP |
+                        PlaybackStateCompat.ACTION_REWIND |
+                        PlaybackStateCompat.ACTION_FAST_FORWARD |
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                        PlaybackStateCompat.ACTION_SEEK_TO);
                 playbackState = builder.build();
                 break;
 
@@ -285,12 +237,12 @@ public class PlayerControlManager {
         }
     }
 
-    private void setMetadataMediaSession(Track track) {
+    private void setMetadataMediaSession(PlayingInfo info) {
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration);
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, info.title)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, info.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, info.album)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, info.duration);
 
         mMediaSession.setMetadata(builder.build());
     }
@@ -299,30 +251,30 @@ public class PlayerControlManager {
     @TargetApi(14)
     @SuppressWarnings("deprecation")
     private void startRemoteControlClient() {
-        AudioManager audioManager = (AudioManager) mPlayerService.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         mMediaButtonReceiver = new ComponentName(
-                mPlayerService,
+                mContext,
                 MediaButtonEventReceiver.class);
         audioManager.registerMediaButtonEventReceiver(mMediaButtonReceiver);
 
         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setComponent(mMediaButtonReceiver);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mPlayerService.getApplicationContext(), 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, 0);
 
         mRemoteControlClient = new RemoteControlClient(pendingIntent);
         audioManager.registerRemoteControlClient(mRemoteControlClient);
 
         mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                        RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-                        RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-                        RemoteControlClient.FLAG_KEY_MEDIA_STOP);
+                RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+                RemoteControlClient.FLAG_KEY_MEDIA_STOP);
     }
 
     @TargetApi(14)
     @SuppressWarnings("deprecation")
     private void stopRemoteControlClient() {
-        AudioManager audioManager = (AudioManager) mPlayerService.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         audioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiver);
         audioManager.unregisterRemoteControlClient(mRemoteControlClient);
@@ -352,13 +304,69 @@ public class PlayerControlManager {
     }
 
     @TargetApi(14)
-    private void setMetadataRemoteControlClient(Track track) {
+    private void setMetadataRemoteControlClient(PlayingInfo info) {
         mRemoteControlClient.editMetadata(true)
-                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.title)
-                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.album)
-                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.artist)
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.duration)
+                .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, info.title)
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, info.album)
+                .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, info.artist)
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, info.duration)
                 .apply();
+    }
+
+
+    private static class MediaSessionCallback extends MediaSessionCompat.Callback {
+        private static final String TAG = MediaSessionCallback.class.getSimpleName();
+
+
+        private ControlAndNotificationManager mManager;
+
+        public MediaSessionCallback(ControlAndNotificationManager manager) {
+            mManager = manager;
+        }
+
+
+        @Override
+        public void onPlay() {
+            super.onPlay();
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+        }
+
+        @Override
+        public void onSkipToNext() {
+            super.onSkipToNext();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            super.onSkipToPrevious();
+        }
+
+        @Override
+        public void onFastForward() {
+            super.onFastForward();
+        }
+
+        @Override
+        public void onRewind() {
+            super.onRewind();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+
+            // TODO: 違うところで
+            mManager.cancelNotification();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+            super.onSeekTo(pos);
+        }
     }
 
 
@@ -370,7 +378,7 @@ public class PlayerControlManager {
 
             String action = intent.getAction();
             if (action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-                context.startService(new Intent(PlayerService.ACTION_PAUSE));
+                context.startService(new Intent(PlayerAction.PAUSE));
                 return;
             } else if (!action.equals(Intent.ACTION_MEDIA_BUTTON)) {
                 return;
@@ -385,31 +393,31 @@ public class PlayerControlManager {
             switch (keyCode) {
 
                 case KeyEvent.KEYCODE_HEADSETHOOK:
-                    context.startService(new Intent(PlayerService.ACTION_TOGGLE_PLAYBACK));
+                    context.startService(new Intent(PlayerAction.TOGGLE_PLAYBACK));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    context.startService(new Intent(PlayerService.ACTION_TOGGLE_PLAYBACK));
+                    context.startService(new Intent(PlayerAction.TOGGLE_PLAYBACK));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
-                    context.startService(new Intent(PlayerService.ACTION_PLAY));
+                    context.startService(new Intent(PlayerAction.PLAY));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                    context.startService(new Intent(PlayerService.ACTION_PAUSE));
+                    context.startService(new Intent(PlayerAction.PAUSE));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    context.startService(new Intent(PlayerService.ACTION_STOP));
+                    context.startService(new Intent(PlayerAction.STOP));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    context.startService(new Intent(PlayerService.ACTION_SKIP));
+                    context.startService(new Intent(PlayerAction.SKIP));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    context.startService(new Intent(PlayerService.ACTION_REWIND));
+                    context.startService(new Intent(PlayerAction.REWIND));
                     break;
             }
         }
