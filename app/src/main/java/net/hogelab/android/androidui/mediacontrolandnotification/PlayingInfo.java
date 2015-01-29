@@ -5,12 +5,25 @@ package net.hogelab.android.androidui.mediacontrolandnotification;
  */
 public class PlayingInfo {
     public long             id;
+
     public String           data;
+    public String           size;
     public String           title;
-    public String           album;
+
+    public String           titleKey;
     public String           artist;
-    public long             albumId;
-    public long             artistId;
-    public long             duration;
-    public long             track;
+    public String           artistId;
+    public String           artistKey;
+    public String           album;
+    public String           albumId;
+    public String           albumKey;
+    public String           track;
+    public String           duration;
+
+    public boolean          playing;
+    public long             listSize;
+    public long             position;
+    public boolean          isfavorite;
+    public int              shuffleMode;
+    public int              repeatMode;
 }

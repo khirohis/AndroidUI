@@ -290,7 +290,7 @@ public class PlayerControlManager {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration);
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.getLong(track.duration));
 
         mMediaSession.setMetadata(builder.build());
     }
@@ -357,7 +357,7 @@ public class PlayerControlManager {
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.title)
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, track.album)
                 .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.artist)
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.duration)
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, Long.getLong(track.duration))
                 .apply();
     }
 
