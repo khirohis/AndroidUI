@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.RemoteViews;
 
 import net.hogelab.android.androidui.R;
 
@@ -28,7 +30,9 @@ public class ControlAndNotificationManager {
     private static final String TAG = ControlAndNotificationManager.class.getSimpleName();
 
 
-    private static final int MEDIA_STYLE_NOTIFICATION_ID = 1;
+    private static final int REMOTE_VIEWS_NOTIFICATION_ID = 1;
+    private static final int MEDIA_STYLE_NOTIFICATION_ID = 2;
+
     private static final int REQUEST_CODE_ACTION = 1;
 
     public enum PlayState {
@@ -36,10 +40,15 @@ public class ControlAndNotificationManager {
     };
 
 
-    private Context mContext;
+    private Service mService;
+    private NotificationManager mNotificationManager;
+    private AudioManager mAudioManager;
 
-    private boolean mHasMediaSession;
-    private boolean mHasRemoteControlClient;
+    private boolean mSupportMediaSession;
+    private boolean mSupportMediaStyleNotification;
+    private boolean mSupportRemoteControlClient;
+
+    private Notification mRemoteViewsNotification;
 
     private MediaSessionCompat mMediaSession;
 
@@ -48,32 +57,43 @@ public class ControlAndNotificationManager {
     private RemoteControlClient mRemoteControlClient;
 
 
-    public ControlAndNotificationManager(Context context) {
-        mContext = context;
+    public ControlAndNotificationManager(Service service) {
+        mService = service;
+        mNotificationManager = (NotificationManager) mService.getSystemService(Context.NOTIFICATION_SERVICE);
+        mAudioManager = (AudioManager) mService.getSystemService(Context.AUDIO_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mHasMediaSession = true;
+            mSupportMediaSession = true;
+            mSupportMediaStyleNotification = true;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mHasRemoteControlClient = true;
+            mSupportRemoteControlClient = true;
         }
     }
 
     public void startControl() {
-        if (mHasMediaSession) {
+        if (mSupportMediaSession) {
             startMediaSession();
         }
 
-        if (mHasRemoteControlClient) {
+        // TODO: setPlayState の再生開始に移すこと
+        if (mSupportMediaStyleNotification) {
+            notifyMediaStyle();
+        } else {
+            notifyRemoteViews();
+        }
+        // ここまで
+
+        if (mSupportRemoteControlClient) {
             startRemoteControlClient();
         }
     }
 
     public void stopControl() {
-        if (mHasMediaSession) {
+        if (mSupportMediaSession) {
             stopMediaSession();
         }
 
-        if (mHasRemoteControlClient) {
+        if (mSupportRemoteControlClient) {
             stopRemoteControlClient();
         }
     }
@@ -81,11 +101,15 @@ public class ControlAndNotificationManager {
     public void setPlayState(PlayState state, PlayingInfo info) {
         sendBroadcast(PlayerAction.SYSTEM_PLAYSTATECHANGED, info);
 
-        if (mHasMediaSession) {
+        if (mSupportMediaSession) {
             setPlayStateMediaSession(state);
         }
 
-        if (mHasRemoteControlClient) {
+        if (!mSupportMediaStyleNotification) {
+            setPlayStateRemoteViewsNotification(state);
+        }
+
+        if (mSupportRemoteControlClient) {
             setPlayStateRemoteControlClient(state);
         }
     }
@@ -93,11 +117,15 @@ public class ControlAndNotificationManager {
     public void setMetadata(PlayingInfo info) {
         sendBroadcast(PlayerAction.SYSTEM_METACHANGED, info);
 
-        if (mHasMediaSession) {
+        if (mSupportMediaSession) {
             setMetadataMediaSession(info);
         }
 
-        if (mHasRemoteControlClient) {
+        if (!mSupportMediaStyleNotification) {
+            setMetadataRemoteViewsNotification(info);
+        }
+
+        if (mSupportRemoteControlClient) {
             setMetadataRemoteControlClient(info);
         }
     }
@@ -107,26 +135,29 @@ public class ControlAndNotificationManager {
         Intent intent = new Intent(action);
 
         intent.putExtra("id", Long.valueOf(info.id));
+
         intent.putExtra("track", info.title);
         intent.putExtra("artist", info.artist);
         intent.putExtra("album", info.album);
-        intent.putExtra("playing", Boolean.valueOf(true));
-        intent.putExtra("ListSize", Long.valueOf(1));
         intent.putExtra("duration", Long.valueOf(info.duration));
-        intent.putExtra("position", Long.valueOf(1));
-        intent.putExtra("isfavorite", Boolean.valueOf(false));
-        intent.putExtra("shuffleMode", Integer.valueOf(0));
-        intent.putExtra("repeatMode", Integer.valueOf(0));
 
-        mContext.sendBroadcast(intent);
+        intent.putExtra("playing", Boolean.valueOf(info.playing));
+        intent.putExtra("ListSize", Long.valueOf(info.listSize));
+        intent.putExtra("position", Long.valueOf(info.position));
+        intent.putExtra("isfavorite", Boolean.valueOf(info.isfavorite));
+        intent.putExtra("shuffleMode", Integer.valueOf(info.shuffleMode));
+        intent.putExtra("repeatMode", Integer.valueOf(info.repeatMode));
+
+        mService.sendBroadcast(intent);
     }
+
 
     private PendingIntent createControlActionIntent(String action) {
         Intent intent = new Intent(action);
-        ComponentName serviceName = new ComponentName(mContext, MediaControlAndNotificationService.class);
+        ComponentName serviceName = new ComponentName(mService, MediaControlAndNotificationService.class);
         intent.setComponent(serviceName);
 
-        return PendingIntent.getService(mContext, REQUEST_CODE_ACTION, intent, 0);
+        return PendingIntent.getService(mService, REQUEST_CODE_ACTION, intent, 0);
     }
 
     @TargetApi(21)
@@ -135,6 +166,39 @@ public class ControlAndNotificationManager {
 
         return new Notification.Action.Builder(resourceId, title, intent).build();
     }
+
+
+    private void notifyRemoteViews() {
+        Intent intent = new Intent(mService, MediaControlAndNotificationService.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
+
+        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrolandnotification);
+        contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
+
+        mRemoteViewsNotification = new Notification();
+        mRemoteViewsNotification.icon = R.drawable.ic_launcher;
+        mRemoteViewsNotification.contentView = contentView;
+        mRemoteViewsNotification.contentIntent = pendingIntent;
+
+        mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
+    }
+
+    private void setPlayStateRemoteViewsNotification(PlayState state) {
+        RemoteViews contentView = mRemoteViewsNotification.contentView;
+//        contentView.setImageViewResource(R.id.toggle_button, toggleAction);
+//        contentView.setOnClickPendingIntent(R.id.toggle_button, toggleAction);
+
+        mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
+    }
+
+    private void setMetadataRemoteViewsNotification(PlayingInfo info) {
+        RemoteViews contentView = mRemoteViewsNotification.contentView;
+        contentView.setTextViewText(R.id.media_info, info.artist + " / " + info.album);
+        contentView.setTextViewText(R.id.media_title, info.title);
+
+        mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
+    }
+
 
     @TargetApi(21)
     private void notifyMediaStyle() {
@@ -145,7 +209,7 @@ public class ControlAndNotificationManager {
                 .setMediaSession(session.getSessionToken())
                 .setShowActionsInCompactView(0);
 
-        Notification.Builder builder = new Notification.Builder(mContext)
+        Notification.Builder builder = new Notification.Builder(mService)
                 .setShowWhen(false)
                 .setSmallIcon(R.drawable.ic_launcher)
 //                .setLargeIcon(artwork)
@@ -161,28 +225,25 @@ public class ControlAndNotificationManager {
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_ff, "Fast Foward", PlayerService.ACTION_FAST_FORWARD));
 //        builder.addAction(createControlAction( android.R.drawable.ic_media_next, "Next", PlayerService.ACTION_NEXT));
 
-        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, builder.build());
+        mNotificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, builder.build());
     }
 
     private void cancelNotification() {
-        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
+        mNotificationManager.cancel(REMOTE_VIEWS_NOTIFICATION_ID);
+        mNotificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
 
-        mContext.startService(new Intent(PlayerAction.STOP));
+        // TODO: need?
+        mService.startService(new Intent(PlayerAction.STOP));
     }
 
 
     private void startMediaSession() {
-        mMediaSession = new MediaSessionCompat(mContext, "test session");
+        mMediaSession = new MediaSessionCompat(mService, "test session");
         mMediaSession.setCallback(new MediaSessionCallback(this));
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
         mMediaSession.setActive(true);
-
-        // TODO: 違うところで
-        notifyMediaStyle();
     }
 
     private void stopMediaSession() {
@@ -242,7 +303,7 @@ public class ControlAndNotificationManager {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, info.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, info.artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, info.album)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, info.duration);
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.valueOf(info.duration));
 
         mMediaSession.setMetadata(builder.build());
     }
@@ -251,19 +312,17 @@ public class ControlAndNotificationManager {
     @TargetApi(14)
     @SuppressWarnings("deprecation")
     private void startRemoteControlClient() {
-        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-
         mMediaButtonReceiver = new ComponentName(
-                mContext,
+                mService,
                 MediaButtonEventReceiver.class);
-        audioManager.registerMediaButtonEventReceiver(mMediaButtonReceiver);
+        mAudioManager.registerMediaButtonEventReceiver(mMediaButtonReceiver);
 
         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setComponent(mMediaButtonReceiver);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mService, 0, intent, 0);
 
         mRemoteControlClient = new RemoteControlClient(pendingIntent);
-        audioManager.registerRemoteControlClient(mRemoteControlClient);
+        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
 
         mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                 RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
@@ -274,10 +333,8 @@ public class ControlAndNotificationManager {
     @TargetApi(14)
     @SuppressWarnings("deprecation")
     private void stopRemoteControlClient() {
-        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-
-        audioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiver);
-        audioManager.unregisterRemoteControlClient(mRemoteControlClient);
+        mAudioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiver);
+        mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
     }
 
 
@@ -304,12 +361,13 @@ public class ControlAndNotificationManager {
     }
 
     @TargetApi(14)
+    @SuppressWarnings("deprecation")
     private void setMetadataRemoteControlClient(PlayingInfo info) {
         mRemoteControlClient.editMetadata(true)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, info.title)
                 .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, info.album)
                 .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, info.artist)
-                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, info.duration)
+                .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, Long.valueOf(info.duration))
                 .apply();
     }
 
