@@ -99,6 +99,7 @@ public class ControlAndNotificationManager {
     }
 
     public void setPlayState(PlayState state, PlayingInfo info) {
+        sendBroadcast(PlayerAction.PLAYSTATECHANGED, info);
         sendBroadcast(PlayerAction.SYSTEM_PLAYSTATECHANGED, info);
 
         if (mSupportMediaSession) {
@@ -115,6 +116,7 @@ public class ControlAndNotificationManager {
     }
 
     public void setMetadata(PlayingInfo info) {
+        sendBroadcast(PlayerAction.METACHANGED, info);
         sendBroadcast(PlayerAction.SYSTEM_METACHANGED, info);
 
         if (mSupportMediaSession) {
@@ -451,11 +453,11 @@ public class ControlAndNotificationManager {
             switch (keyCode) {
 
                 case KeyEvent.KEYCODE_HEADSETHOOK:
-                    context.startService(new Intent(PlayerAction.TOGGLE_PLAYBACK));
+                    context.startService(new Intent(PlayerAction.TOGGLE_PLAY_PAUSE));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    context.startService(new Intent(PlayerAction.TOGGLE_PLAYBACK));
+                    context.startService(new Intent(PlayerAction.TOGGLE_PLAY_PAUSE));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
@@ -471,11 +473,11 @@ public class ControlAndNotificationManager {
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    context.startService(new Intent(PlayerAction.SKIP));
+                    context.startService(new Intent(PlayerAction.SKIP_TO_NEXT));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    context.startService(new Intent(PlayerAction.REWIND));
+                    context.startService(new Intent(PlayerAction.SKIP_TO_PREVIOUS));
                     break;
             }
         }

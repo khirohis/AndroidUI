@@ -32,6 +32,8 @@ public class MediaControlAndNotificationService extends Service
 
     private ControlAndNotificationManager mManager;
 
+    private int mPlayerState;
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -48,6 +50,8 @@ public class MediaControlAndNotificationService extends Service
     public void onCreate() {
         super.onCreate();
 
+        mPlayerState = PlayerState.INITIALIZED;
+
         AudioManager manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         manager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
@@ -57,12 +61,6 @@ public class MediaControlAndNotificationService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent.getAction();
-        if (action == null) {
-            action = "<null>";
-        }
-        Log.d(TAG, "onStartCommand: Action=" + action);
-
         PlayingInfo info = createPlayingInfo(true);
         mManager.setMetadata(info);
         mManager.setPlayState(ControlAndNotificationManager.PlayState.PLAYSTATE_PLAYING, info);
@@ -104,6 +102,162 @@ public class MediaControlAndNotificationService extends Service
     }
 
 
+    private void handleAction(Intent intent) {
+        String action = intent.getAction();
+        if (action != null) {
+            Log.d(TAG, "onStartCommand: Action=" + action);
+
+            switch (action) {
+
+                case PlayerAction.PLAY:
+                    play();
+                    break;
+
+                case PlayerAction.STOP:
+                    stop();
+                    break;
+
+                case PlayerAction.PAUSE:
+                    pause();
+                    break;
+
+                case PlayerAction.TOGGLE_PLAY_PAUSE:
+                    togglePlayPause();
+                    break;
+
+                case PlayerAction.SKIP_TO_NEXT:
+                    skipToNext();
+                    break;
+
+                case PlayerAction.SKIP_TO_PREVIOUS:
+                    skipToPrevious();
+                    break;
+
+                case PlayerAction.FAST_FORWARD:
+                    break;
+
+                case PlayerAction.REWIND:
+                    break;
+
+                case PlayerAction.SEEK_TO:
+                    break;
+            }
+        } else {
+            Log.d(TAG, "onStartCommand: Action=<null>");
+        }
+    }
+
+
+    // Player Control
+
+    private void play() {
+        int newState;
+        switch (mPlayerState) {
+
+            case PlayerState.NONE:
+            case PlayerState.STOPPED:
+            case PlayerState.PAUSED:
+                mPlayerState = PlayerState.PLAYING;
+                break;
+
+            case PlayerState.BUFFERING:
+            case PlayerState.SKIPPING_TO_NEXT:
+            case PlayerState.SKIPPING_TO_PREVIOUS:
+                Log.d(TAG, "PLayerState Busy");
+                break;
+
+            case PlayerState.INITIALIZED:
+            case PlayerState.ERROR:
+                Log.d(TAG, "PLayerState Error");
+                break;
+
+            case PlayerState.PLAYING:
+            default:
+                break;
+        }
+    }
+
+    private void stop() {
+        switch (mPlayerState) {
+
+            case PlayerState.BUFFERING:
+            case PlayerState.PLAYING:
+            case PlayerState.PAUSED:
+            case PlayerState.SKIPPING_TO_NEXT:
+            case PlayerState.SKIPPING_TO_PREVIOUS:
+                mPlayerState = PlayerState.STOPPED;
+                break;
+
+            case PlayerState.INITIALIZED:
+            case PlayerState.ERROR:
+                Log.d(TAG, "PLayerState Error");
+                break;
+
+            case PlayerState.NONE:
+            case PlayerState.STOPPED:
+            default:
+                break;
+        }
+    }
+
+    private void pause() {
+        switch (mPlayerState) {
+
+            case PlayerState.PLAYING:
+                mPlayerState = PlayerState.PAUSED;
+                break;
+
+            case PlayerState.INITIALIZED:
+            case PlayerState.ERROR:
+                Log.d(TAG, "PLayerState Error");
+                break;
+
+            case PlayerState.NONE:
+            case PlayerState.BUFFERING:
+            case PlayerState.STOPPED:
+            case PlayerState.PAUSED:
+            case PlayerState.SKIPPING_TO_NEXT:
+            case PlayerState.SKIPPING_TO_PREVIOUS:
+            default:
+                break;
+        }
+    }
+
+    private void togglePlayPause() {
+        switch (mPlayerState) {
+
+            case PlayerState.PLAYING:
+                mPlayerState = PlayerState.PAUSED;
+                break;
+
+            case PlayerState.PAUSED:
+                mPlayerState = PlayerState.PLAYING;
+                break;
+
+            case PlayerState.INITIALIZED:
+            case PlayerState.ERROR:
+                Log.d(TAG, "PLayerState Error");
+                break;
+
+            case PlayerState.NONE:
+            case PlayerState.BUFFERING:
+            case PlayerState.STOPPED:
+            case PlayerState.SKIPPING_TO_NEXT:
+            case PlayerState.SKIPPING_TO_PREVIOUS:
+            default:
+                break;
+        }
+    }
+
+    private void skipToNext() {
+    }
+
+    private void skipToPrevious() {
+    }
+
+
+    // Audio Focus Control
+
     private void onGainAudioFocus() {
         Log.d(TAG, "onGainAudioFocus");
         // volume set to normal
@@ -115,7 +269,7 @@ public class MediaControlAndNotificationService extends Service
         if (canDuck) {
             // volume set to lower
         } else {
-            // pause play
+            pause();
         }
     }
 
