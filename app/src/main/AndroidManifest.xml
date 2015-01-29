@@ -33,7 +33,7 @@
 
         <activity
             android:name=".mediacontrolandnotification.TestMediaControlAndNotificationActivity"
-            android:label="AndroidUI Media Style Notification" >
+            android:label="AndroidUI Media Control And Notification" >
         </activity>
 
         <activity
