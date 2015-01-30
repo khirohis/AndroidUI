@@ -26,4 +26,5 @@ public class PlayerAction {
     public static final String SEEK_TO = "net.hogelab.android.androidui.seek_to";
 
     public static final String EXTRA_KEY_PLAYLIST = "playlist";
+    public static final String EXTRA_KEY_POSITION = "position";
 }
