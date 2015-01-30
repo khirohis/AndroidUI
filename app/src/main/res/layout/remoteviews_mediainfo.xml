@@ -3,8 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
-    >
+    android:layout_height="64dp">
 
     <ImageView
         android:layout_width="64dp"
@@ -18,42 +17,22 @@
         android:layout_weight="1">
 
         <TextView
-            android:id="@+id/media_info"
+            android:id="@+id/media_info_artist_album_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:textSize="14sp"
-            android:text="No Information"
-            />
+            android:text="No Information" />
 
         <TextView
-            android:id="@+id/media_title"
+            android:id="@+id/media_info_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:textSize="20sp"
-            android:text="No Title"
-            />
+            android:text="No Title" />
 
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/skip_to_previous_button"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:src="@android:drawable/ic_media_previous" />
-
-    <ImageButton
-        android:id="@+id/toggle_button"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:src="@android:drawable/ic_media_pause" />
-
-    <ImageButton
-        android:id="@+id/skip_to_next_button"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:src="@android:drawable/ic_media_next" />
 
 </LinearLayout>

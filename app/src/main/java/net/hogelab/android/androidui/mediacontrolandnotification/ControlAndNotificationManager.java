@@ -31,10 +31,11 @@ public class ControlAndNotificationManager {
     private static final String TAG = ControlAndNotificationManager.class.getSimpleName();
 
 
-    private static final int REMOTE_VIEWS_NOTIFICATION_ID = 1;
-    private static final int MEDIA_STYLE_NOTIFICATION_ID = 2;
+    private static final int MEDIA_INFO_NOTIFICATION_ID = 1;
+    private static final int MEDIA_CONTROL_NOTIFICATION_ID = 2;
+    private static final int MEDIA_STYLE_NOTIFICATION_ID = 3;
 
-    private static final int REQUEST_CODE_ACTION = 1;
+    private static final int ACTION_REQUEST_CODE = 1;
 
 
     private Service mService;
@@ -44,8 +45,10 @@ public class ControlAndNotificationManager {
     private boolean mSupportMediaSession;
     private boolean mSupportMediaStyleNotification;
     private boolean mSupportRemoteControlClient;
+    private boolean mSupportMediaControlNotification;
 
-    private Notification mRemoteViewsNotification;
+    private Notification mMediaInfoNotification;
+    private Notification mMediaControlNotification;
 
     private MediaSessionCompat mMediaSession;
 
@@ -64,6 +67,7 @@ public class ControlAndNotificationManager {
             mSupportMediaStyleNotification = true;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             mSupportRemoteControlClient = true;
+            mSupportMediaControlNotification = true;
         }
     }
 
@@ -75,8 +79,10 @@ public class ControlAndNotificationManager {
         // TODO: setPlaybackState の再生開始に移すこと
         if (mSupportMediaStyleNotification) {
             notifyMediaStyle();
+        } else if (mSupportMediaControlNotification) {
+            notifyMediaControl();
         } else {
-            notifyRemoteViews();
+            notifyMediaInfo();
         }
         // ここまで
 
@@ -103,8 +109,8 @@ public class ControlAndNotificationManager {
             setPlaybackStateMediaSession(state);
         }
 
-        if (!mSupportMediaStyleNotification) {
-            setPlaybackStateRemoteViewsNotification(state);
+        if (!mSupportMediaStyleNotification && mSupportMediaControlNotification) {
+            setPlaybackStateMediaControlNotification(state);
         }
 
         if (mSupportRemoteControlClient) {
@@ -121,7 +127,11 @@ public class ControlAndNotificationManager {
         }
 
         if (!mSupportMediaStyleNotification) {
-            setMetadataRemoteViewsNotification(info);
+            if (mSupportMediaControlNotification) {
+                setMetadataMediaControlNotification(info);
+            } else {
+                setMetadataMediaInfoNotification(info);
+            }
         }
 
         if (mSupportRemoteControlClient) {
@@ -154,7 +164,7 @@ public class ControlAndNotificationManager {
     private PendingIntent createControlActionIntent(String action) {
         Intent intent = new Intent(action);
 
-        return PendingIntent.getService(mService, REQUEST_CODE_ACTION, intent, 0);
+        return PendingIntent.getService(mService, ACTION_REQUEST_CODE, intent, 0);
     }
 
     @TargetApi(21)
@@ -164,27 +174,43 @@ public class ControlAndNotificationManager {
         return new Notification.Action.Builder(resourceId, title, intent).build();
     }
 
-
-    private void notifyRemoteViews() {
-        Intent intent = new Intent(mService, PlayerMockService.class);
+    private void notifyMediaInfo() {
+        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
 
-        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrolandnotification);
+        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediainfo);
+
+        mMediaInfoNotification = new NotificationCompat.Builder(mService)
+                .setWhen(0)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .build();
+        mMediaInfoNotification.contentView = contentView;
+
+        mService.startForeground(MEDIA_INFO_NOTIFICATION_ID, mMediaInfoNotification);
+    }
+
+    private void notifyMediaControl() {
+        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
+
+        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrol);
         contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
         contentView.setOnClickPendingIntent(R.id.skip_to_next_button, createControlActionIntent(PlayerAction.SKIP_TO_NEXT));
         contentView.setOnClickPendingIntent(R.id.skip_to_previous_button, createControlActionIntent(PlayerAction.SKIP_TO_PREVIOUS));
 
-        mRemoteViewsNotification = new Notification();
-        mRemoteViewsNotification.icon = R.drawable.ic_launcher;
-        mRemoteViewsNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-        mRemoteViewsNotification.contentIntent = pendingIntent;
-        mRemoteViewsNotification.contentView = contentView;
+        mMediaControlNotification = new NotificationCompat.Builder(mService)
+                .setWhen(0)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .setContent(contentView)
+                .build();
 
-        mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
+        mService.startForeground(MEDIA_CONTROL_NOTIFICATION_ID, mMediaControlNotification);
     }
 
-    private void setPlaybackStateRemoteViewsNotification(int state) {
-        RemoteViews contentView = mRemoteViewsNotification.contentView;
+    private void setPlaybackStateMediaControlNotification(int state) {
+        RemoteViews contentView = mMediaControlNotification.contentView;
 
         switch (state) {
 
@@ -204,15 +230,23 @@ public class ControlAndNotificationManager {
                 break;
         }
 
-        mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
+        mService.startForeground(MEDIA_CONTROL_NOTIFICATION_ID, mMediaControlNotification);
     }
 
-    private void setMetadataRemoteViewsNotification(PlayingInfo info) {
-        RemoteViews contentView = mRemoteViewsNotification.contentView;
-        contentView.setTextViewText(R.id.media_info, info.artist + " / " + info.album);
-        contentView.setTextViewText(R.id.media_title, info.title);
+    private void setMetadataMediaInfoNotification(PlayingInfo info) {
+        RemoteViews contentView = mMediaInfoNotification.contentView;
+        contentView.setTextViewText(R.id.media_info_artist_album_text, info.artist + " / " + info.album);
+        contentView.setTextViewText(R.id.media_info_title_text, info.title);
 
-        mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
+        mService.startForeground(MEDIA_INFO_NOTIFICATION_ID, mMediaInfoNotification);
+    }
+
+    private void setMetadataMediaControlNotification(PlayingInfo info) {
+        RemoteViews contentView = mMediaControlNotification.contentView;
+        contentView.setTextViewText(R.id.media_control_artist_album_text, info.artist + " / " + info.album);
+        contentView.setTextViewText(R.id.media_control_title_text, info.title);
+
+        mService.startForeground(MEDIA_CONTROL_NOTIFICATION_ID, mMediaControlNotification);
     }
 
 
@@ -223,7 +257,7 @@ public class ControlAndNotificationManager {
         MediaSession session = (MediaSession) mMediaSession.getMediaSession();
         Notification.MediaStyle style = new Notification.MediaStyle()
                 .setMediaSession(session.getSessionToken())
-                .setShowActionsInCompactView(0);
+                .setShowActionsInCompactView(0, 1, 2, 3);
 
         Notification.Builder builder = new Notification.Builder(mService)
                 .setShowWhen(false)
@@ -236,16 +270,17 @@ public class ControlAndNotificationManager {
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setStyle(style);
 
-//        builder.addAction(createControlAction( android.R.drawable.ic_media_previous, "Previous", PlayerService.ACTION_PREVIOUS));
-        builder.addAction(createControlAction(android.R.drawable.ic_media_rew, "Rewind", PlayerAction.REWIND));
-//        builder.addAction(createControlAction( android.R.drawable.ic_media_ff, "Fast Foward", PlayerService.ACTION_FAST_FORWARD));
-//        builder.addAction(createControlAction( android.R.drawable.ic_media_next, "Next", PlayerService.ACTION_NEXT));
+        builder.addAction(createControlAction(android.R.drawable.ic_media_previous, "Previous", PlayerAction.SKIP_TO_PREVIOUS));
+        builder.addAction(createControlAction(android.R.drawable.ic_media_play, "Play", PlayerAction.PLAY));
+        builder.addAction(createControlAction(android.R.drawable.ic_media_pause, "Pause", PlayerAction.PAUSE));
+        builder.addAction(createControlAction(android.R.drawable.ic_media_next, "Next", PlayerAction.SKIP_TO_NEXT));
 
         mNotificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, builder.build());
     }
 
     private void cancelNotification() {
-        mNotificationManager.cancel(REMOTE_VIEWS_NOTIFICATION_ID);
+        mNotificationManager.cancel(MEDIA_INFO_NOTIFICATION_ID);
+        mNotificationManager.cancel(MEDIA_CONTROL_NOTIFICATION_ID);
         mNotificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
 
         // TODO: need?
@@ -255,7 +290,7 @@ public class ControlAndNotificationManager {
 
     private void startMediaSession() {
         mMediaSession = new MediaSessionCompat(mService, "test session");
-        mMediaSession.setCallback(new MediaSessionCallback(this));
+        mMediaSession.setCallback(new MediaSessionCallback(mService));
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
@@ -393,54 +428,68 @@ public class ControlAndNotificationManager {
         private static final String TAG = MediaSessionCallback.class.getSimpleName();
 
 
-        private ControlAndNotificationManager mManager;
+        private Service mService;
 
-        public MediaSessionCallback(ControlAndNotificationManager manager) {
-            mManager = manager;
+        public MediaSessionCallback(Service service) {
+            mService = service;
         }
 
 
         @Override
         public void onPlay() {
             super.onPlay();
+
+            mService.startService(new Intent(PlayerAction.PLAY));
         }
 
         @Override
         public void onPause() {
             super.onPause();
+
+            mService.startService(new Intent(PlayerAction.PAUSE));
         }
 
         @Override
         public void onSkipToNext() {
             super.onSkipToNext();
+
+            mService.startService(new Intent(PlayerAction.SKIP_TO_NEXT));
         }
 
         @Override
         public void onSkipToPrevious() {
             super.onSkipToPrevious();
+
+            mService.startService(new Intent(PlayerAction.SKIP_TO_PREVIOUS));
         }
 
         @Override
         public void onFastForward() {
             super.onFastForward();
+
+            mService.startService(new Intent(PlayerAction.FAST_FORWARD));
         }
 
         @Override
         public void onRewind() {
             super.onRewind();
+
+            mService.startService(new Intent(PlayerAction.REWIND));
         }
 
         @Override
         public void onStop() {
             super.onStop();
 
-            // TODO: 違うところで
-            mManager.cancelNotification();
+            mService.startService(new Intent(PlayerAction.STOP));
         }
 
         @Override
         public void onSeekTo(long pos) {
             super.onSeekTo(pos);
+
+            Intent intent = new Intent(PlayerAction.SEEK_TO);
+            intent.putExtra(PlayerAction.EXTRA_KEY_POSITION, pos);
         }
     }
 
