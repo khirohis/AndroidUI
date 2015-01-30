@@ -14,6 +14,7 @@ public class PlayerAction {
     public static final String PLAYBACKCOMPLETE = "net.hogelab.android.androidui.playbackcomplete";
     public static final String QUEUECHANGED = "net.hogelab.android.androidui.queuechanged";
 
+    public static final String SET_PLAYLIST = "net.hogelab.android.androidui.set_playlist";
     public static final String PLAY = "net.hogelab.android.androidui.play";
     public static final String STOP = "net.hogelab.android.androidui.stop";
     public static final String PAUSE = "net.hogelab.android.androidui.pause";
@@ -23,4 +24,6 @@ public class PlayerAction {
     public static final String FAST_FORWARD = "net.hogelab.android.androidui.fast_forward";
     public static final String REWIND = "net.hogelab.android.androidui.rewind";
     public static final String SEEK_TO = "net.hogelab.android.androidui.seek_to";
+
+    public static final String EXTRA_KEY_PLAYLIST = "playlist";
 }

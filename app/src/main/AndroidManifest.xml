@@ -46,29 +46,22 @@
             android:label="AndroidUI Player" >
         </activity>
 
-        <service android:name=".mediacontrolandnotification.MediaControlAndNotificationService">
+        <service android:name=".mediacontrolandnotification.PlayerMockService">
             <intent-filter>
-                <action android:name="net.hogelab.android.androidui.action.PLAY" />
-                <action android:name="net.hogelab.android.androidui.action.STOP" />
-                <action android:name="net.hogelab.android.androidui.action.PAUSE" />
-                <action android:name="net.hogelab.android.androidui.action.TOGGLE_PLAYBACK" />
-                <action android:name="net.hogelab.android.androidui.action.SKIP" />
-                <action android:name="net.hogelab.android.androidui.action.REWIND" />
+                <action android:name="net.hogelab.android.androidui.set_playlist" />
+                <action android:name="net.hogelab.android.androidui.play" />
+                <action android:name="net.hogelab.android.androidui.stop" />
+                <action android:name="net.hogelab.android.androidui.pause" />
+                <action android:name="net.hogelab.android.androidui.toggle_playback" />
+                <action android:name="net.hogelab.android.androidui.skip_to_next" />
+                <action android:name="net.hogelab.android.androidui.skip_to_previous" />
+                <action android:name="net.hogelab.android.androidui.fast_forward" />
+                <action android:name="net.hogelab.android.androidui.rewind" />
+                <action android:name="net.hogelab.android.androidui.seek_to" />
             </intent-filter>
         </service>
 
-        <service android:name=".musicplayer.PlayerService">
-            <intent-filter>
-                <action android:name="net.hogelab.android.androidui.action.PLAY" />
-                <action android:name="net.hogelab.android.androidui.action.STOP" />
-                <action android:name="net.hogelab.android.androidui.action.PAUSE" />
-                <action android:name="net.hogelab.android.androidui.action.TOGGLE_PLAYBACK" />
-                <action android:name="net.hogelab.android.androidui.action.SKIP" />
-                <action android:name="net.hogelab.android.androidui.action.REWIND" />
-            </intent-filter>
-        </service>
-
-        <receiver android:name=".musicplayer.PlayerControlManager$MediaButtonEventReceiver">
+        <receiver android:name=".mediacontrolandnotification.ControlAndNotificationManager$MediaButtonEventReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>

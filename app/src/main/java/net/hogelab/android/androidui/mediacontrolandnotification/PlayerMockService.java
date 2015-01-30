@@ -11,10 +11,10 @@ import android.util.Log;
 /**
  * Created by kobayasi on 2015/01/27.
  */
-public class MediaControlAndNotificationService extends Service
+public class PlayerMockService extends Service
         implements AudioManager.OnAudioFocusChangeListener {
 
-    private static final String TAG = MediaControlAndNotificationService.class.getSimpleName();
+    private static final String TAG = PlayerMockService.class.getSimpleName();
 
 
     private static final int MEDIA_STYLE_NOTIFICATION_ID = 1;
@@ -22,8 +22,8 @@ public class MediaControlAndNotificationService extends Service
 
 
     public class MediaStyleNotificationBinder extends Binder {
-        public MediaControlAndNotificationService getService() {
-            return MediaControlAndNotificationService.this;
+        public PlayerMockService getService() {
+            return PlayerMockService.this;
         }
     }
 
@@ -32,7 +32,10 @@ public class MediaControlAndNotificationService extends Service
 
     private ControlAndNotificationManager mManager;
 
-    private int mPlayerState;
+    private int mPlaybackState;
+
+    private long[] mPlaylist;
+    private int mPlaylistIndex;
 
 
     @Override
@@ -50,7 +53,7 @@ public class MediaControlAndNotificationService extends Service
     public void onCreate() {
         super.onCreate();
 
-        mPlayerState = PlayerState.INITIALIZED;
+        mPlaybackState = PlaybackState.INITIALIZED;
 
         AudioManager manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         manager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
@@ -61,9 +64,7 @@ public class MediaControlAndNotificationService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        PlayingInfo info = createPlayingInfo(true);
-        mManager.setMetadata(info);
-        mManager.setPlayState(ControlAndNotificationManager.PlayState.PLAYSTATE_PLAYING, info);
+        handleAction(intent);
 
         return START_NOT_STICKY;
     }
@@ -84,16 +85,23 @@ public class MediaControlAndNotificationService extends Service
         switch (focusChange) {
 
             case AudioManager.AUDIOFOCUS_GAIN:
+                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_GAIN");
                 onGainAudioFocus();
                 break;
 
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                onLossAudioFocus(true);
+            case AudioManager.AUDIOFOCUS_LOSS:
+                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_LOSS");
+                onLossAudioFocus(false);
                 break;
 
-            case AudioManager.AUDIOFOCUS_LOSS:
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_LOSS_TRANSIENT");
                 onLossAudioFocus(false);
+                break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
+                onLossAudioFocus(true);
                 break;
 
             default:
@@ -108,6 +116,9 @@ public class MediaControlAndNotificationService extends Service
             Log.d(TAG, "onStartCommand: Action=" + action);
 
             switch (action) {
+                case PlayerAction.SET_PLAYLIST:
+                    setPlaylist(intent);
+                    break;
 
                 case PlayerAction.PLAY:
                     play();
@@ -150,101 +161,95 @@ public class MediaControlAndNotificationService extends Service
 
     // Player Control
 
+    private void setPlaybackStateAndNotify(int state, boolean playing) {
+        mPlaybackState = state;
+
+        PlayingInfo info = getPlayingInfo(playing);
+        if (info != null) {
+            mManager.setPlaybackState(PlaybackState.PLAYING, info);
+        }
+    }
+
+    private void setPlaylist(Intent intent) {
+        long[] playlist = intent.getLongArrayExtra(PlayerAction.EXTRA_KEY_PLAYLIST);
+        if (playlist != null) {
+            stop();
+
+            mPlaylist = playlist;
+            mPlaylistIndex = 0;
+
+            mPlaybackState = PlaybackState.READY_TO_PLAY;
+
+            PlayingInfo info = getPlayingInfo(false);
+            mManager.setMetadata(info);
+        }
+    }
+
     private void play() {
-        int newState;
-        switch (mPlayerState) {
+        switch (mPlaybackState) {
 
-            case PlayerState.NONE:
-            case PlayerState.STOPPED:
-            case PlayerState.PAUSED:
-                mPlayerState = PlayerState.PLAYING;
+            case PlaybackState.READY_TO_PLAY:
+            case PlaybackState.STOPPED:
+            case PlaybackState.PAUSED:
+                mPlaybackState = PlaybackState.PLAYING;
+                setPlaybackStateAndNotify(PlaybackState.PLAYING, true);
                 break;
 
-            case PlayerState.BUFFERING:
-            case PlayerState.SKIPPING_TO_NEXT:
-            case PlayerState.SKIPPING_TO_PREVIOUS:
-                Log.d(TAG, "PLayerState Busy");
-                break;
-
-            case PlayerState.INITIALIZED:
-            case PlayerState.ERROR:
-                Log.d(TAG, "PLayerState Error");
-                break;
-
-            case PlayerState.PLAYING:
             default:
+                Log.d(TAG, "play: not handled. PlaybackState=" + mPlaybackState);
                 break;
         }
     }
 
     private void stop() {
-        switch (mPlayerState) {
+        boolean handled = false;
 
-            case PlayerState.BUFFERING:
-            case PlayerState.PLAYING:
-            case PlayerState.PAUSED:
-            case PlayerState.SKIPPING_TO_NEXT:
-            case PlayerState.SKIPPING_TO_PREVIOUS:
-                mPlayerState = PlayerState.STOPPED;
+        switch (mPlaybackState) {
+
+            case PlaybackState.BUFFERING:
+            case PlaybackState.PLAYING:
+            case PlaybackState.PAUSED:
+            case PlaybackState.SKIPPING_TO_NEXT:
+            case PlaybackState.SKIPPING_TO_PREVIOUS:
+                mPlaybackState = PlaybackState.STOPPED;
+                setPlaybackStateAndNotify(PlaybackState.STOPPED, false);
                 break;
 
-            case PlayerState.INITIALIZED:
-            case PlayerState.ERROR:
-                Log.d(TAG, "PLayerState Error");
-                break;
-
-            case PlayerState.NONE:
-            case PlayerState.STOPPED:
             default:
+                Log.d(TAG, "stop: not handled. PlaybackState=" + mPlaybackState);
                 break;
         }
     }
 
     private void pause() {
-        switch (mPlayerState) {
+        switch (mPlaybackState) {
 
-            case PlayerState.PLAYING:
-                mPlayerState = PlayerState.PAUSED;
+            case PlaybackState.PLAYING:
+                mPlaybackState = PlaybackState.PAUSED;
+                setPlaybackStateAndNotify(PlaybackState.PAUSED, false);
                 break;
 
-            case PlayerState.INITIALIZED:
-            case PlayerState.ERROR:
-                Log.d(TAG, "PLayerState Error");
-                break;
-
-            case PlayerState.NONE:
-            case PlayerState.BUFFERING:
-            case PlayerState.STOPPED:
-            case PlayerState.PAUSED:
-            case PlayerState.SKIPPING_TO_NEXT:
-            case PlayerState.SKIPPING_TO_PREVIOUS:
             default:
+                Log.d(TAG, "pause: not handled. PlaybackState=" + mPlaybackState);
                 break;
         }
     }
 
     private void togglePlayPause() {
-        switch (mPlayerState) {
+        switch (mPlaybackState) {
 
-            case PlayerState.PLAYING:
-                mPlayerState = PlayerState.PAUSED;
+            case PlaybackState.PLAYING:
+                mPlaybackState = PlaybackState.PAUSED;
+                setPlaybackStateAndNotify(PlaybackState.PAUSED, false);
                 break;
 
-            case PlayerState.PAUSED:
-                mPlayerState = PlayerState.PLAYING;
+            case PlaybackState.PAUSED:
+                mPlaybackState = PlaybackState.PLAYING;
+                setPlaybackStateAndNotify(PlaybackState.PLAYING, true);
                 break;
 
-            case PlayerState.INITIALIZED:
-            case PlayerState.ERROR:
-                Log.d(TAG, "PLayerState Error");
-                break;
-
-            case PlayerState.NONE:
-            case PlayerState.BUFFERING:
-            case PlayerState.STOPPED:
-            case PlayerState.SKIPPING_TO_NEXT:
-            case PlayerState.SKIPPING_TO_PREVIOUS:
             default:
+                Log.d(TAG, "togglePlayPause: not handled. current PlaybackState=" + mPlaybackState);
                 break;
         }
     }
@@ -274,7 +279,11 @@ public class MediaControlAndNotificationService extends Service
     }
 
 
-    private PlayingInfo createPlayingInfo(boolean isPlaying) {
+    private PlayingInfo getPlayingInfo(boolean isPlaying) {
+        if (mPlaylist == null) {
+            return null;
+        }
+
         PlayingInfo info = new PlayingInfo();
 
         info.id = 1;
@@ -290,11 +299,11 @@ public class MediaControlAndNotificationService extends Service
         info.album = "All you need is KUMA";
         info.albumId = "1";
         info.albumKey = "albumKey";
-        info.track = "1";
+        info.track = Integer.toString(mPlaylistIndex + 1);
         info.duration = "60000";
 
         info.playing = isPlaying;
-        info.listSize = 10;
+        info.listSize = mPlaylist.length;
         info.position = 0;
         info.isfavorite = false;
         info.shuffleMode = 0;

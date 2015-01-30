@@ -48,7 +48,7 @@ public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
 
 
         private boolean mMediaStyleNotificationServiceBound;
-        private MediaControlAndNotificationService mMediaStyleNotificationService;
+        private PlayerMockService mMediaStyleNotificationService;
 
 
         public static PlaceholderFragment newInstance() {
@@ -78,7 +78,7 @@ public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            Intent intent = new Intent(getActivity(), MediaControlAndNotificationService.class);
+            Intent intent = new Intent(getActivity(), PlayerMockService.class);
             getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
             getActivity().startService(intent);
         }
@@ -105,10 +105,18 @@ public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected");
 
-            MediaControlAndNotificationService.MediaStyleNotificationBinder binder =
-                    (MediaControlAndNotificationService.MediaStyleNotificationBinder)service;
+            PlayerMockService.MediaStyleNotificationBinder binder =
+                    (PlayerMockService.MediaStyleNotificationBinder)service;
             mMediaStyleNotificationService = binder.getService();
             mMediaStyleNotificationServiceBound = true;
+
+            long[] playlist = { 1L, 2L, 3L, 4L, 5L};
+            Intent intent = new Intent(PlayerAction.SET_PLAYLIST);
+            intent.putExtra(PlayerAction.EXTRA_KEY_PLAYLIST, playlist);
+            getActivity().startService(intent);
+
+            intent = new Intent(PlayerAction.PLAY);
+            getActivity().startService(intent);
         }
 
         @Override
