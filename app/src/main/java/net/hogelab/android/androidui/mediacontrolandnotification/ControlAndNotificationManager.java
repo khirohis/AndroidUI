@@ -14,6 +14,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.media.session.MediaSession;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -34,10 +35,6 @@ public class ControlAndNotificationManager {
     private static final int MEDIA_STYLE_NOTIFICATION_ID = 2;
 
     private static final int REQUEST_CODE_ACTION = 1;
-
-    public enum PlayState {
-        PLAYSTATE_PLAYING, PLAYSTATE_PAUSED, PLAYSTATE_STOPPED
-    };
 
 
     private Service mService;
@@ -75,7 +72,7 @@ public class ControlAndNotificationManager {
             startMediaSession();
         }
 
-        // TODO: setPlayState の再生開始に移すこと
+        // TODO: setPlaybackState の再生開始に移すこと
         if (mSupportMediaStyleNotification) {
             notifyMediaStyle();
         } else {
@@ -98,20 +95,20 @@ public class ControlAndNotificationManager {
         }
     }
 
-    public void setPlayState(PlayState state, PlayingInfo info) {
+    public void setPlaybackState(int state, PlayingInfo info) {
         sendBroadcast(PlayerAction.PLAYSTATECHANGED, info);
         sendBroadcast(PlayerAction.SYSTEM_PLAYSTATECHANGED, info);
 
         if (mSupportMediaSession) {
-            setPlayStateMediaSession(state);
+            setPlaybackStateMediaSession(state);
         }
 
         if (!mSupportMediaStyleNotification) {
-            setPlayStateRemoteViewsNotification(state);
+            setPlaybackStateRemoteViewsNotification(state);
         }
 
         if (mSupportRemoteControlClient) {
-            setPlayStateRemoteControlClient(state);
+            setPlaybackStateRemoteControlClient(state);
         }
     }
 
@@ -156,8 +153,6 @@ public class ControlAndNotificationManager {
 
     private PendingIntent createControlActionIntent(String action) {
         Intent intent = new Intent(action);
-        ComponentName serviceName = new ComponentName(mService, MediaControlAndNotificationService.class);
-        intent.setComponent(serviceName);
 
         return PendingIntent.getService(mService, REQUEST_CODE_ACTION, intent, 0);
     }
@@ -171,24 +166,43 @@ public class ControlAndNotificationManager {
 
 
     private void notifyRemoteViews() {
-        Intent intent = new Intent(mService, MediaControlAndNotificationService.class);
+        Intent intent = new Intent(mService, PlayerMockService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
 
         RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrolandnotification);
         contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
+        contentView.setOnClickPendingIntent(R.id.skip_to_next_button, createControlActionIntent(PlayerAction.SKIP_TO_NEXT));
+        contentView.setOnClickPendingIntent(R.id.skip_to_previous_button, createControlActionIntent(PlayerAction.SKIP_TO_PREVIOUS));
 
         mRemoteViewsNotification = new Notification();
         mRemoteViewsNotification.icon = R.drawable.ic_launcher;
-        mRemoteViewsNotification.contentView = contentView;
+        mRemoteViewsNotification.flags |= Notification.FLAG_ONGOING_EVENT;
         mRemoteViewsNotification.contentIntent = pendingIntent;
+        mRemoteViewsNotification.contentView = contentView;
 
         mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
     }
 
-    private void setPlayStateRemoteViewsNotification(PlayState state) {
+    private void setPlaybackStateRemoteViewsNotification(int state) {
         RemoteViews contentView = mRemoteViewsNotification.contentView;
-//        contentView.setImageViewResource(R.id.toggle_button, toggleAction);
-//        contentView.setOnClickPendingIntent(R.id.toggle_button, toggleAction);
+
+        switch (state) {
+
+            case PlaybackState.PLAYING:
+                contentView.setImageViewResource(R.id.toggle_button, android.R.drawable.ic_media_pause);
+                contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
+                break;
+
+            case PlaybackState.READY_TO_PLAY:
+            case PlaybackState.STOPPED:
+            case PlaybackState.PAUSED:
+                contentView.setImageViewResource(R.id.toggle_button, android.R.drawable.ic_media_play);
+                contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PLAY));
+                break;
+
+            default:
+                break;
+        }
 
         mService.startForeground(REMOTE_VIEWS_NOTIFICATION_ID, mRemoteViewsNotification);
     }
@@ -253,13 +267,13 @@ public class ControlAndNotificationManager {
         mMediaSession.release();
     }
 
-    private void setPlayStateMediaSession(PlayState state) {
+    private void setPlaybackStateMediaSession(int state) {
         PlaybackStateCompat playbackState = null;
         PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
 
         switch (state) {
 
-            case PLAYSTATE_PLAYING:
+            case PlaybackState.PLAYING:
                 builder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f);
                 builder.setActions(PlaybackStateCompat.ACTION_PAUSE |
                         PlaybackStateCompat.ACTION_STOP |
@@ -271,7 +285,7 @@ public class ControlAndNotificationManager {
                 playbackState = builder.build();
                 break;
 
-            case PLAYSTATE_PAUSED:
+            case PlaybackState.PAUSED:
                 builder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 1.0f);
                 builder.setActions(PlaybackStateCompat.ACTION_PLAY |
                         PlaybackStateCompat.ACTION_STOP |
@@ -283,7 +297,7 @@ public class ControlAndNotificationManager {
                 playbackState = builder.build();
                 break;
 
-            case PLAYSTATE_STOPPED:
+            case PlaybackState.STOPPED:
                 builder.setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f);
                 builder.setActions(PlaybackStateCompat.ACTION_PLAY |
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
@@ -328,6 +342,7 @@ public class ControlAndNotificationManager {
 
         mRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                 RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+                RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE |
                 RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
                 RemoteControlClient.FLAG_KEY_MEDIA_STOP);
     }
@@ -342,18 +357,18 @@ public class ControlAndNotificationManager {
 
     @TargetApi(14)
     @SuppressWarnings("deprecation")
-    private void setPlayStateRemoteControlClient(PlayState state) {
+    private void setPlaybackStateRemoteControlClient(int state) {
         switch (state) {
 
-            case PLAYSTATE_PLAYING:
+            case PlaybackState.PLAYING:
                 mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
                 break;
 
-            case PLAYSTATE_PAUSED:
+            case PlaybackState.PAUSED:
                 mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
                 break;
 
-            case PLAYSTATE_STOPPED:
+            case PlaybackState.STOPPED:
                 mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
                 break;
 
