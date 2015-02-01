@@ -27,18 +27,16 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by hirohisa on 2015/01/28.
  */
-public class ControlAndNotificationManager {
-    private static final String TAG = ControlAndNotificationManager.class.getSimpleName();
+public class MediaControlManager {
+    private static final String TAG = MediaControlManager.class.getSimpleName();
 
 
-    private static final int MEDIA_INFO_NOTIFICATION_ID = 1;
-    private static final int MEDIA_CONTROL_NOTIFICATION_ID = 2;
-    private static final int MEDIA_STYLE_NOTIFICATION_ID = 3;
-
+    private static final int NOTIFICATION_ID = 1;
     private static final int ACTION_REQUEST_CODE = 1;
 
 
     private Service mService;
+
     private NotificationManager mNotificationManager;
     private AudioManager mAudioManager;
 
@@ -47,18 +45,16 @@ public class ControlAndNotificationManager {
     private boolean mSupportRemoteControlClient;
     private boolean mSupportMediaControlNotification;
 
-    private Notification mMediaInfoNotification;
-    private Notification mMediaControlNotification;
-
     private MediaSessionCompat mMediaSession;
-
     private ComponentName mMediaButtonReceiver;
     @SuppressWarnings("deprecation")
     private RemoteControlClient mRemoteControlClient;
+    private Notification mNotification;
 
 
-    public ControlAndNotificationManager(Service service) {
+    public MediaControlManager(Service service) {
         mService = service;
+
         mNotificationManager = (NotificationManager) mService.getSystemService(Context.NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) mService.getSystemService(Context.AUDIO_SERVICE);
 
@@ -71,24 +67,17 @@ public class ControlAndNotificationManager {
         }
     }
 
+
     public void startControl() {
         if (mSupportMediaSession) {
             startMediaSession();
         }
 
-        // TODO: setPlaybackState の再生開始に移すこと
-        if (mSupportMediaStyleNotification) {
-            notifyMediaStyle();
-        } else if (mSupportMediaControlNotification) {
-            notifyMediaControl();
-        } else {
-            notifyMediaInfo();
-        }
-        // ここまで
-
         if (mSupportRemoteControlClient) {
             startRemoteControlClient();
         }
+
+        updateNotification(PlaybackState.NONE, null);
     }
 
     public void stopControl() {
@@ -99,7 +88,10 @@ public class ControlAndNotificationManager {
         if (mSupportRemoteControlClient) {
             stopRemoteControlClient();
         }
+
+        cancelNotification();
     }
+
 
     public void setPlaybackState(int state, PlayingInfo info) {
         sendBroadcast(PlayerAction.PLAYSTATECHANGED, info);
@@ -109,16 +101,14 @@ public class ControlAndNotificationManager {
             setPlaybackStateMediaSession(state);
         }
 
-        if (!mSupportMediaStyleNotification && mSupportMediaControlNotification) {
-            setPlaybackStateMediaControlNotification(state);
-        }
-
         if (mSupportRemoteControlClient) {
             setPlaybackStateRemoteControlClient(state);
         }
+
+        updateNotification(state, info);
     }
 
-    public void setMetadata(PlayingInfo info) {
+    public void setMetadata(int state, PlayingInfo info) {
         sendBroadcast(PlayerAction.METACHANGED, info);
         sendBroadcast(PlayerAction.SYSTEM_METACHANGED, info);
 
@@ -126,19 +116,17 @@ public class ControlAndNotificationManager {
             setMetadataMediaSession(info);
         }
 
-        if (!mSupportMediaStyleNotification) {
-            if (mSupportMediaControlNotification) {
-                setMetadataMediaControlNotification(info);
-            } else {
-                setMetadataMediaInfoNotification(info);
-            }
-        }
-
         if (mSupportRemoteControlClient) {
             setMetadataRemoteControlClient(info);
         }
+
+        updateNotification(state, info);
     }
 
+
+    /**
+     * broadcast
+     */
 
     private void sendBroadcast(String action, PlayingInfo info) {
         Intent intent = new Intent(action);
@@ -161,132 +149,9 @@ public class ControlAndNotificationManager {
     }
 
 
-    private PendingIntent createControlActionIntent(String action) {
-        Intent intent = new Intent(action);
-
-        return PendingIntent.getService(mService, ACTION_REQUEST_CODE, intent, 0);
-    }
-
-    @TargetApi(21)
-    private Notification.Action createControlAction(int resourceId, String title, String action) {
-        PendingIntent intent = createControlActionIntent(action);
-
-        return new Notification.Action.Builder(resourceId, title, intent).build();
-    }
-
-    private void notifyMediaInfo() {
-        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
-
-        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediainfo);
-
-        mMediaInfoNotification = new NotificationCompat.Builder(mService)
-                .setWhen(0)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentIntent(pendingIntent)
-                .build();
-        mMediaInfoNotification.contentView = contentView;
-
-        mService.startForeground(MEDIA_INFO_NOTIFICATION_ID, mMediaInfoNotification);
-    }
-
-    private void notifyMediaControl() {
-        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
-
-        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrol);
-        contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
-        contentView.setOnClickPendingIntent(R.id.skip_to_next_button, createControlActionIntent(PlayerAction.SKIP_TO_NEXT));
-        contentView.setOnClickPendingIntent(R.id.skip_to_previous_button, createControlActionIntent(PlayerAction.SKIP_TO_PREVIOUS));
-
-        mMediaControlNotification = new NotificationCompat.Builder(mService)
-                .setWhen(0)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentIntent(pendingIntent)
-                .setContent(contentView)
-                .build();
-
-        mService.startForeground(MEDIA_CONTROL_NOTIFICATION_ID, mMediaControlNotification);
-    }
-
-    private void setPlaybackStateMediaControlNotification(int state) {
-        RemoteViews contentView = mMediaControlNotification.contentView;
-
-        switch (state) {
-
-            case PlaybackState.PLAYING:
-                contentView.setImageViewResource(R.id.toggle_button, android.R.drawable.ic_media_pause);
-                contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
-                break;
-
-            case PlaybackState.READY_TO_PLAY:
-            case PlaybackState.STOPPED:
-            case PlaybackState.PAUSED:
-                contentView.setImageViewResource(R.id.toggle_button, android.R.drawable.ic_media_play);
-                contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PLAY));
-                break;
-
-            default:
-                break;
-        }
-
-        mService.startForeground(MEDIA_CONTROL_NOTIFICATION_ID, mMediaControlNotification);
-    }
-
-    private void setMetadataMediaInfoNotification(PlayingInfo info) {
-        RemoteViews contentView = mMediaInfoNotification.contentView;
-        contentView.setTextViewText(R.id.media_info_artist_album_text, info.artist + " / " + info.album);
-        contentView.setTextViewText(R.id.media_info_title_text, info.title);
-
-        mService.startForeground(MEDIA_INFO_NOTIFICATION_ID, mMediaInfoNotification);
-    }
-
-    private void setMetadataMediaControlNotification(PlayingInfo info) {
-        RemoteViews contentView = mMediaControlNotification.contentView;
-        contentView.setTextViewText(R.id.media_control_artist_album_text, info.artist + " / " + info.album);
-        contentView.setTextViewText(R.id.media_control_title_text, info.title);
-
-        mService.startForeground(MEDIA_CONTROL_NOTIFICATION_ID, mMediaControlNotification);
-    }
-
-
-    @TargetApi(21)
-    private void notifyMediaStyle() {
-        PendingIntent pendingIntent = createControlActionIntent(PlayerAction.STOP);
-
-        MediaSession session = (MediaSession) mMediaSession.getMediaSession();
-        Notification.MediaStyle style = new Notification.MediaStyle()
-                .setMediaSession(session.getSessionToken())
-                .setShowActionsInCompactView(0, 1, 2, 3);
-
-        Notification.Builder builder = new Notification.Builder(mService)
-                .setShowWhen(false)
-                .setSmallIcon(R.drawable.ic_launcher)
-//                .setLargeIcon(artwork)
-                .setColor(0xFFCCCCCC)
-                .setContentTitle("Title")
-                .setContentText("Artist")
-                .setDeleteIntent(pendingIntent)
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setStyle(style);
-
-        builder.addAction(createControlAction(android.R.drawable.ic_media_previous, "Previous", PlayerAction.SKIP_TO_PREVIOUS));
-        builder.addAction(createControlAction(android.R.drawable.ic_media_play, "Play", PlayerAction.PLAY));
-        builder.addAction(createControlAction(android.R.drawable.ic_media_pause, "Pause", PlayerAction.PAUSE));
-        builder.addAction(createControlAction(android.R.drawable.ic_media_next, "Next", PlayerAction.SKIP_TO_NEXT));
-
-        mNotificationManager.notify(MEDIA_STYLE_NOTIFICATION_ID, builder.build());
-    }
-
-    private void cancelNotification() {
-        mNotificationManager.cancel(MEDIA_INFO_NOTIFICATION_ID);
-        mNotificationManager.cancel(MEDIA_CONTROL_NOTIFICATION_ID);
-        mNotificationManager.cancel(MEDIA_STYLE_NOTIFICATION_ID);
-
-        // TODO: need?
-        mService.startService(new Intent(PlayerAction.STOP));
-    }
-
+    /**
+     * MediaSession
+     */
 
     private void startMediaSession() {
         mMediaSession = new MediaSessionCompat(mService, "test session");
@@ -301,6 +166,7 @@ public class ControlAndNotificationManager {
         mMediaSession.setActive(false);
         mMediaSession.release();
     }
+
 
     private void setPlaybackStateMediaSession(int state) {
         PlaybackStateCompat playbackState = null;
@@ -359,6 +225,10 @@ public class ControlAndNotificationManager {
         mMediaSession.setMetadata(builder.build());
     }
 
+
+    /**
+     * RemoteControlClient
+     */
 
     @TargetApi(14)
     @SuppressWarnings("deprecation")
@@ -422,6 +292,143 @@ public class ControlAndNotificationManager {
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, Long.valueOf(info.duration))
                 .apply();
     }
+
+
+    /**
+     * Notification
+     */
+
+    private void updateNotification(int state, PlayingInfo info) {
+        if (mSupportMediaStyleNotification) {
+            notifyMediaStyle(state, info);
+        } else if (mSupportMediaControlNotification) {
+            notifyMediaControl(state, info);
+        } else {
+            notifyMediaInfo(info);
+        }
+    }
+
+    private void cancelNotification() {
+        mNotificationManager.cancel(NOTIFICATION_ID);
+
+        mNotification = null;
+    }
+
+
+    private void notifyMediaInfo(PlayingInfo info) {
+        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
+
+        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediainfo);
+        if (info != null) {
+            contentView.setTextViewText(R.id.media_info_artist_album_text, info.artist + " / " + info.album);
+            contentView.setTextViewText(R.id.media_info_title_text, info.title);
+        } else {
+            contentView.setTextViewText(R.id.media_control_artist_album_text, "-- / --");
+            contentView.setTextViewText(R.id.media_control_title_text, "----");
+        }
+
+        mNotification = new NotificationCompat.Builder(mService)
+                .setWhen(0)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .setContent(contentView)
+                .build();
+
+//        mNotification = new Notification();
+//        mNotification.icon = R.drawable.ic_launcher;
+//        mNotification.contentIntent = pendingIntent;
+//        mNotification.contentView = contentView;
+
+        mService.startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    private void notifyMediaControl(int state, PlayingInfo info) {
+        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
+
+        RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrol);
+        if (info != null) {
+            contentView.setTextViewText(R.id.media_control_artist_album_text, info.artist + " / " + info.album);
+            contentView.setTextViewText(R.id.media_control_title_text, info.title);
+        } else {
+            contentView.setTextViewText(R.id.media_control_artist_album_text, "-- / --");
+            contentView.setTextViewText(R.id.media_control_title_text, "----");
+        }
+
+        if (state == PlaybackState.PLAYING) {
+            contentView.setImageViewResource(R.id.toggle_button, android.R.drawable.ic_media_pause);
+            contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PAUSE));
+        } else {
+            contentView.setImageViewResource(R.id.toggle_button, android.R.drawable.ic_media_play);
+            contentView.setOnClickPendingIntent(R.id.toggle_button, createControlActionIntent(PlayerAction.PLAY));
+        }
+        contentView.setOnClickPendingIntent(R.id.skip_to_next_button, createControlActionIntent(PlayerAction.SKIP_TO_NEXT));
+        contentView.setOnClickPendingIntent(R.id.skip_to_previous_button, createControlActionIntent(PlayerAction.SKIP_TO_PREVIOUS));
+
+        mNotification = new NotificationCompat.Builder(mService)
+                .setWhen(0)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .setContent(contentView)
+                .build();
+
+        mService.startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    @TargetApi(21)
+    private void notifyMediaStyle(int state, PlayingInfo info) {
+        PendingIntent pendingIntent = createControlActionIntent(PlayerAction.STOP);
+
+        MediaSession session = (MediaSession) mMediaSession.getMediaSession();
+        Notification.MediaStyle style = new Notification.MediaStyle()
+                .setMediaSession(session.getSessionToken())
+                .setShowActionsInCompactView(0, 1, 2);
+
+        Notification.Builder builder = new Notification.Builder(mService)
+                .setShowWhen(false)
+                .setSmallIcon(R.drawable.ic_launcher)
+//                .setLargeIcon(artwork)
+                .setColor(0xFFEEEEEE)
+                .setDeleteIntent(pendingIntent)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setStyle(style);
+
+        if (info != null) {
+            builder.setContentText(info.artist + " / " + info.album);
+            builder.setContentTitle(info.title);
+        } else {
+            builder.setContentTitle("-- / --");
+            builder.setContentTitle("----");
+        }
+
+        builder.addAction(createControlAction(android.R.drawable.ic_media_previous, "Previous", PlayerAction.SKIP_TO_PREVIOUS));
+        if (state == PlaybackState.PLAYING) {
+            builder.addAction(createControlAction(android.R.drawable.ic_media_pause, "Pause", PlayerAction.PAUSE));
+        } else {
+            builder.addAction(createControlAction(android.R.drawable.ic_media_play, "Play", PlayerAction.PLAY));
+        }
+        builder.addAction(createControlAction(android.R.drawable.ic_media_next, "Next", PlayerAction.SKIP_TO_NEXT));
+
+        mNotification = builder.build();
+
+        mService.startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+
+    private PendingIntent createControlActionIntent(String action) {
+        Intent intent = new Intent(action);
+
+        return PendingIntent.getService(mService, ACTION_REQUEST_CODE, intent, 0);
+    }
+
+    @TargetApi(21)
+    private Notification.Action createControlAction(int resourceId, String title, String action) {
+        PendingIntent intent = createControlActionIntent(action);
+
+        return new Notification.Action.Builder(resourceId, title, intent).build();
+    }
+
 
 
     private static class MediaSessionCallback extends MediaSessionCompat.Callback {

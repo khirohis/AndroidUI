@@ -110,13 +110,9 @@ public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
             mMediaStyleNotificationService = binder.getService();
             mMediaStyleNotificationServiceBound = true;
 
-            long[] playlist = { 1L, 2L, 3L, 4L, 5L};
-            Intent intent = new Intent(PlayerAction.SET_PLAYLIST);
-            intent.putExtra(PlayerAction.EXTRA_KEY_PLAYLIST, playlist);
-            getActivity().startService(intent);
+            sendSetPlaylistAction();
 
-            intent = new Intent(PlayerAction.PLAY);
-            getActivity().startService(intent);
+            sendPlayAction();
         }
 
         @Override
@@ -125,6 +121,22 @@ public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
 
             mMediaStyleNotificationService = null;
             mMediaStyleNotificationServiceBound = false;
+        }
+
+
+        private void sendSetPlaylistAction() {
+            long[] playlist = { 1L, 2L, 3L, 4L, 5L};
+
+            Intent intent = new Intent(getActivity(), PlayerMockService.class);
+            intent.setAction(PlayerAction.SET_PLAYLIST);
+            intent.putExtra(PlayerAction.EXTRA_KEY_PLAYLIST, playlist);
+            getActivity().startService(intent);
+        }
+
+        private void sendPlayAction() {
+            Intent intent = new Intent(getActivity(), PlayerMockService.class);
+            intent.setAction(PlayerAction.PLAY);
+            getActivity().startService(intent);
         }
     }
 }
