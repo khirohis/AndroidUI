@@ -46,7 +46,7 @@
         android:id="@+id/toggle_button"
         android:layout_width="40dp"
         android:layout_height="match_parent"
-        android:src="@android:drawable/ic_media_pause"
+        android:src="@android:drawable/ic_media_play"
         android:background="@android:color/transparent" />
 
     <ImageButton

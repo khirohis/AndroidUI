@@ -30,7 +30,7 @@ public class PlayerMockService extends Service
 
     private final IBinder mBinder = new MediaStyleNotificationBinder();
 
-    private ControlAndNotificationManager mManager;
+    private MediaControlManager mManager;
 
     private int mPlaybackState;
 
@@ -58,7 +58,7 @@ public class PlayerMockService extends Service
         AudioManager manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         manager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
-        mManager = new ControlAndNotificationManager(this);
+        mManager = new MediaControlManager(this);
         mManager.startControl();
     }
 
@@ -166,7 +166,7 @@ public class PlayerMockService extends Service
 
         PlayingInfo info = getPlayingInfo(playing);
         if (info != null) {
-            mManager.setPlaybackState(PlaybackState.PLAYING, info);
+            mManager.setPlaybackState(state, info);
         }
     }
 
@@ -181,7 +181,7 @@ public class PlayerMockService extends Service
             mPlaybackState = PlaybackState.READY_TO_PLAY;
 
             PlayingInfo info = getPlayingInfo(false);
-            mManager.setMetadata(info);
+            mManager.setMetadata(mPlaybackState, info);
         }
     }
 
