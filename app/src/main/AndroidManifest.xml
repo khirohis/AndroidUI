@@ -37,6 +37,11 @@
         </activity>
 
         <activity
+            android:name=".loader.TestLoaderActivity"
+            android:label="AndroidUI Music Player" >
+        </activity>
+
+        <activity
             android:name=".musicplayer.TestMusicPlayerActivity"
             android:label="AndroidUI Music Player" >
         </activity>
