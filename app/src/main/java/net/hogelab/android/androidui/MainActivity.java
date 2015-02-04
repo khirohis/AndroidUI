@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
 import net.hogelab.android.androidui.loader.TestLoaderActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.TestMediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.TestMusicPlayerActivity;
@@ -24,6 +25,7 @@ public class MainActivity extends ActionBarActivity {
 
 
     private static final String[] items = {
+            "Diagnostics",
             "Navigation Drawer",
             "Music Receiver",
             "Media Control & Notification",
@@ -95,22 +97,26 @@ public class MainActivity extends ActionBarActivity {
                     switch (position) {
 
                         case 0:
-                            onSelectTestNavigationDrawer();
+                            onSelectDiagnostics();
                             break;
 
                         case 1:
-                            onSelectTestMusicReceiver();
+                            onSelectTestNavigationDrawer();
                             break;
 
                         case 2:
-                            onSelectTestMediaControlAndNotification();
+                            onSelectTestMusicReceiver();
                             break;
 
                         case 3:
-                            onSelectTestLoader();
+                            onSelectTestMediaControlAndNotification();
                             break;
 
                         case 4:
+                            onSelectTestLoader();
+                            break;
+
+                        case 5:
                             onSelectTestMusicPlayer();
                             break;
 
@@ -119,6 +125,11 @@ public class MainActivity extends ActionBarActivity {
                     }
                 }
             });
+        }
+
+        private void onSelectDiagnostics() {
+            Intent intent = new Intent(getActivity(), DiagnosticsActivity.class);
+            startActivity(intent);
         }
 
         private void onSelectTestNavigationDrawer() {

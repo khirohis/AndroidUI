@@ -115,7 +115,8 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
 
             TestMusicPlayerTrackFragment fragment = TestMusicPlayerTrackFragment.newInstance(id);
 
-            getActivity().getSupportFragmentManager().beginTransaction()
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
                     .replace(R.id.testmusicreceiver_container, fragment)
                     .addToBackStack(null)
                     .commit();
