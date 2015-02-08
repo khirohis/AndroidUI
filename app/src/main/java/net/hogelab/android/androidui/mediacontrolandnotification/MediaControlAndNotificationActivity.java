@@ -18,16 +18,16 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by kobayasi on 2015/01/27.
  */
-public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
+public class MediaControlAndNotificationActivity extends ActionBarActivity {
 
-    private static final String TAG = TestMediaControlAndNotificationActivity.class.getSimpleName();
+    private static final String TAG = MediaControlAndNotificationActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_testmediacontrolandnotification);
+        setContentView(R.layout.activity_mediacontrolandnotification);
 
         if (savedInstanceState == null) {
             PlaceholderFragment fragment = PlaceholderFragment.newInstance();
@@ -70,7 +70,7 @@ public class TestMediaControlAndNotificationActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testmediacontrolandnotification, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_mediacontrolandnotification, container, false);
             return rootView;
         }
 

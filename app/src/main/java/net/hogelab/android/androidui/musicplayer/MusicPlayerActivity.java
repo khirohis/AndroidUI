@@ -23,30 +23,30 @@ import net.hogelab.android.androidui.musicplayer.entity.Track;
 /**
  * Created by hirohisa on 2015/01/22.
  */
-public class TestMusicPlayerActivity extends ActionBarActivity {
-    private static final String TAG = TestMusicPlayerActivity.class.getSimpleName();
+public class MusicPlayerActivity extends ActionBarActivity {
+    private static final String TAG = MusicPlayerActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_testmusicreceiver);
+        setContentView(R.layout.activity_musicreceiver);
 
         if (savedInstanceState == null) {
-            TestMusicPlayerAlbumFragment fragment = TestMusicPlayerAlbumFragment.newInstance();
+            MusicPlayerAlbumFragment fragment = MusicPlayerAlbumFragment.newInstance();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.testmusicreceiver_container, fragment)
+                    .add(R.id.musicreceiver_container, fragment)
                     .commit();
         }
     }
 
 
-    public static class TestMusicPlayerAlbumFragment extends ListFragment
+    public static class MusicPlayerAlbumFragment extends ListFragment
             implements LoaderManager.LoaderCallbacks<Cursor> {
 
-        private final String TAG = TestMusicPlayerAlbumFragment.class.getSimpleName();
+        private final String TAG = MusicPlayerAlbumFragment.class.getSimpleName();
 
 
         private final int ALBUM_LOADER_ID = 0;
@@ -56,12 +56,12 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
         private SimpleCursorAdapter mAdapter;
 
 
-        public static TestMusicPlayerAlbumFragment newInstance() {
-            return new TestMusicPlayerAlbumFragment();
+        public static MusicPlayerAlbumFragment newInstance() {
+            return new MusicPlayerAlbumFragment();
         }
 
 
-        public TestMusicPlayerAlbumFragment() {
+        public MusicPlayerAlbumFragment() {
         }
 
         @Override
@@ -72,7 +72,7 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testmusicplayeralbum, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_musicplayeralbum, container, false);
             return rootView;
         }
 
@@ -113,11 +113,11 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
         public void onListItemClick(ListView l, View v, int position, long id) {
             Log.i(TAG, "Item clicked: " + id);
 
-            TestMusicPlayerTrackFragment fragment = TestMusicPlayerTrackFragment.newInstance(id);
+            MusicPlayerTrackFragment fragment = MusicPlayerTrackFragment.newInstance(id);
 
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.testmusicreceiver_container, fragment)
+                    .replace(R.id.musicreceiver_container, fragment)
                     .addToBackStack(null)
                     .commit();
         }
@@ -145,10 +145,10 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
     }
 
 
-    public static class TestMusicPlayerTrackFragment extends ListFragment
+    public static class MusicPlayerTrackFragment extends ListFragment
             implements LoaderManager.LoaderCallbacks<Cursor> {
 
-        private final String TAG = TestMusicPlayerTrackFragment.class.getSimpleName();
+        private final String TAG = MusicPlayerTrackFragment.class.getSimpleName();
 
 
         private final int TRACK_LOADER_ID = 0;
@@ -158,18 +158,18 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
         private SimpleCursorAdapter mAdapter;
 
 
-        public static TestMusicPlayerTrackFragment newInstance(long albumId) {
+        public static MusicPlayerTrackFragment newInstance(long albumId) {
             Bundle args = new Bundle();
             args.putLong("ALBUM_ID", albumId);
 
-            TestMusicPlayerTrackFragment fragment = new TestMusicPlayerTrackFragment();
+            MusicPlayerTrackFragment fragment = new MusicPlayerTrackFragment();
             fragment.setArguments(args);
 
             return fragment;
         }
 
 
-        public TestMusicPlayerTrackFragment() {
+        public MusicPlayerTrackFragment() {
         }
 
         @Override
@@ -180,7 +180,7 @@ public class TestMusicPlayerActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testmusicplayertrack, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_musicplayertrack, container, false);
             return rootView;
         }
 

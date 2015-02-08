@@ -13,11 +13,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
-import net.hogelab.android.androidui.loader.TestLoaderActivity;
-import net.hogelab.android.androidui.mediacontrolandnotification.TestMediaControlAndNotificationActivity;
-import net.hogelab.android.androidui.musicplayer.TestMusicPlayerActivity;
-import net.hogelab.android.androidui.musicreceiver.TestMusicReceiverActivity;
-import net.hogelab.android.androidui.navigationdrawer.TestNavigationDrawerActivity;
+import net.hogelab.android.androidui.loader.LoaderActivity;
+import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
+import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
+import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
+import net.hogelab.android.androidui.navigationdrawer.NavigationDrawerActivity;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -101,23 +101,23 @@ public class MainActivity extends ActionBarActivity {
                             break;
 
                         case 1:
-                            onSelectTestNavigationDrawer();
+                            onSelectNavigationDrawer();
                             break;
 
                         case 2:
-                            onSelectTestMusicReceiver();
+                            onSelectMusicReceiver();
                             break;
 
                         case 3:
-                            onSelectTestMediaControlAndNotification();
+                            onSelectMediaControlAndNotification();
                             break;
 
                         case 4:
-                            onSelectTestLoader();
+                            onSelectLoader();
                             break;
 
                         case 5:
-                            onSelectTestMusicPlayer();
+                            onSelectMusicPlayer();
                             break;
 
                         default:
@@ -132,28 +132,28 @@ public class MainActivity extends ActionBarActivity {
             startActivity(intent);
         }
 
-        private void onSelectTestNavigationDrawer() {
-            Intent intent = new Intent(getActivity(), TestNavigationDrawerActivity.class);
+        private void onSelectNavigationDrawer() {
+            Intent intent = new Intent(getActivity(), NavigationDrawerActivity.class);
             startActivity(intent);
         }
 
-        private void onSelectTestMusicReceiver() {
-            Intent intent = new Intent(getActivity(), TestMusicReceiverActivity.class);
+        private void onSelectMusicReceiver() {
+            Intent intent = new Intent(getActivity(), MusicReceiverActivity.class);
             startActivity(intent);
         }
 
-        private void onSelectTestMediaControlAndNotification() {
-            Intent intent = new Intent(getActivity(), TestMediaControlAndNotificationActivity.class);
+        private void onSelectMediaControlAndNotification() {
+            Intent intent = new Intent(getActivity(), MediaControlAndNotificationActivity.class);
             startActivity(intent);
         }
 
-        private void onSelectTestLoader() {
-            Intent intent = new Intent(getActivity(), TestLoaderActivity.class);
+        private void onSelectLoader() {
+            Intent intent = new Intent(getActivity(), LoaderActivity.class);
             startActivity(intent);
         }
 
-        private void onSelectTestMusicPlayer() {
-            Intent intent = new Intent(getActivity(), TestMusicPlayerActivity.class);
+        private void onSelectMusicPlayer() {
+            Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
             startActivity(intent);
         }
     }

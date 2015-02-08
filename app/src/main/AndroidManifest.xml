@@ -27,27 +27,27 @@
         </activity>
 
         <activity
-            android:name=".navigationdrawer.TestNavigationDrawerActivity"
+            android:name=".navigationdrawer.NavigationDrawerActivity"
             android:label="AndroidUI Navigation Drawer" >
         </activity>
 
         <activity
-            android:name=".musicreceiver.TestMusicReceiverActivity"
+            android:name=".musicreceiver.MusicReceiverActivity"
             android:label="AndroidUI Music Receiver" >
         </activity>
 
         <activity
-            android:name=".mediacontrolandnotification.TestMediaControlAndNotificationActivity"
+            android:name=".mediacontrolandnotification.MediaControlAndNotificationActivity"
             android:label="AndroidUI Media Control And Notification" >
         </activity>
 
         <activity
-            android:name=".loader.TestLoaderActivity"
+            android:name=".loader.LoaderActivity"
             android:label="AndroidUI Music Player" >
         </activity>
 
         <activity
-            android:name=".musicplayer.TestMusicPlayerActivity"
+            android:name=".musicplayer.MusicPlayerActivity"
             android:label="AndroidUI Music Player" >
         </activity>
 
