@@ -3,7 +3,6 @@ package net.hogelab.android.androidui.musicreceiver;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,19 +17,19 @@ import java.util.Locale;
 /**
  * Created by kobayasi on 2015/01/20.
  */
-public class TestMusicReceiverActivity extends ActionBarActivity {
-    private static final String TAG = TestMusicReceiverActivity.class.getSimpleName();
+public class MusicReceiverActivity extends ActionBarActivity {
+    private static final String TAG = MusicReceiverActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_testmusicreceiver);
+        setContentView(R.layout.activity_musicreceiver);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.testmusicreceiver_container, new PlaceholderFragment())
+                    .add(R.id.musicreceiver_container, new PlaceholderFragment())
                     .commit();
         }
     }
@@ -40,17 +39,17 @@ public class TestMusicReceiverActivity extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends ListFragment
-            implements TestMusicReceiver.TestMusicReceiverListener {
+            implements MusicReceiver.MusicReceiverListener {
         private final String TAG = PlaceholderFragment.class.getSimpleName();
 
 
         private boolean mResumed;
-        private TestMusicReceiver mReceiver;
+        private MusicReceiver mReceiver;
 
 
         public PlaceholderFragment() {
             mResumed = false;
-            mReceiver = new TestMusicReceiver(this);
+            mReceiver = new MusicReceiver(this);
         }
 
         @Override
@@ -63,7 +62,7 @@ public class TestMusicReceiverActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testmusicreceiver, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_musicreceiver, container, false);
             return rootView;
         }
 

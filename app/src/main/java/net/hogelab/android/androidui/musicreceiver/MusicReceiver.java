@@ -5,34 +5,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * Created by kobayasi on 2015/01/20.
  */
-public class TestMusicReceiver extends BroadcastReceiver {
-    private static final String TAG = TestMusicReceiver.class.getSimpleName();
+public class MusicReceiver extends BroadcastReceiver {
+    private static final String TAG = MusicReceiver.class.getSimpleName();
 
     public static final String ACTION_METACHANGED = "com.android.music.metachanged";
     public static final String ACTION_PLAYSTATECHANGED = "com.android.music.playstatechanged";
     public static final String ACTION_PLAYBACKCOMPLETE = "com.android.music.playbackcomplete";
 
 
-    public interface TestMusicReceiverListener {
+    public interface MusicReceiverListener {
         public void onReceiveMusicAction(String action, Bundle bundle);
     }
 
 
     private boolean mRegistered;
-    private TestMusicReceiverListener mListener;
+    private MusicReceiverListener mListener;
 
 
-    public TestMusicReceiver(TestMusicReceiverListener listener) {
+    public MusicReceiver(MusicReceiverListener listener) {
         mRegistered = false;
         mListener = listener;
     }
 
-    public void setListener(TestMusicReceiverListener listener) {
+    public void setListener(MusicReceiverListener listener) {
     }
 
 

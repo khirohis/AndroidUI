@@ -316,7 +316,7 @@ public class MediaControlManager {
 
 
     private void notifyMediaInfo(PlayingInfo info) {
-        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
+        Intent intent = new Intent(mService, MediaControlAndNotificationActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
 
         RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediainfo);
@@ -344,7 +344,7 @@ public class MediaControlManager {
     }
 
     private void notifyMediaControl(int state, PlayingInfo info) {
-        Intent intent = new Intent(mService, TestMediaControlAndNotificationActivity.class);
+        Intent intent = new Intent(mService, MediaControlAndNotificationActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mService, 0, intent, 0);
 
         RemoteViews contentView = new RemoteViews(mService.getPackageName(), R.layout.remoteviews_mediacontrol);

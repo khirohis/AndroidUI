@@ -2,7 +2,6 @@ package net.hogelab.android.androidui.loader;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,25 +16,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import net.hogelab.android.androidui.MainActivity;
 import net.hogelab.android.androidui.R;
 
 /**
  * Created by hirohisa on 2015/02/02.
  */
-public class TestLoaderActivity extends ActionBarActivity {
-    private static final String TAG = TestLoaderActivity.class.getSimpleName();
+public class LoaderActivity extends ActionBarActivity {
+    private static final String TAG = LoaderActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_testloader);
+        setContentView(R.layout.activity_loader);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.testloader_container, new PlaceholderFragment())
+                    .add(R.id.loader_container, new PlaceholderFragment())
                     .commit();
         }
     }
@@ -67,7 +65,7 @@ public class TestLoaderActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testloader, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_loader, container, false);
             return rootView;
         }
 

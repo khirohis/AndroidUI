@@ -30,10 +30,10 @@
         </LinearLayout>
 
         <FrameLayout
-            android:id="@+id/testnavigationdrawer_container"
+            android:id="@+id/navigationdrawer_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".TestNavigationDrawerActivity"
+            tools:context=".navigationdrawer.NavigationDrawerActivity"
             tools:ignore="MergeRootFrame" />
 
     </LinearLayout>

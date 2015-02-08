@@ -17,8 +17,8 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by hirohisa on 2015/01/02.
  */
-public class TestNavigationDrawerActivity extends ActionBarActivity {
-    private static final String TAG = TestNavigationDrawerActivity.class.getSimpleName();
+public class NavigationDrawerActivity extends ActionBarActivity {
+    private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
 
 
     private Toolbar mToolbar;
@@ -30,7 +30,7 @@ public class TestNavigationDrawerActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_testnavigationdrawer);
+        setContentView(R.layout.activity_navigationdrawer);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -50,7 +50,7 @@ public class TestNavigationDrawerActivity extends ActionBarActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.testnavigationdrawer_container, new PlaceholderFragment())
+                    .add(R.id.navigationdrawer_container, new PlaceholderFragment())
                     .commit();
         }
     }
@@ -86,7 +86,7 @@ public class TestNavigationDrawerActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_testnavigationdrawer, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_navigationdrawer, container, false);
             return rootView;
         }
 
