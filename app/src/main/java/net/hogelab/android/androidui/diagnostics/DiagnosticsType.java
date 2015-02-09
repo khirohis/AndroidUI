@@ -6,6 +6,8 @@ package net.hogelab.android.androidui.diagnostics;
 public class DiagnosticsType {
 
     public static final String[] itemArray = {
+            "Device Information",
+            "Memory Information",
             "AsyncTask Executor",
     };
 }

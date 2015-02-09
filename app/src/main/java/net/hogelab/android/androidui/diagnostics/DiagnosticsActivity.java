@@ -17,6 +17,7 @@ import net.hogelab.android.androidui.R;
  * Created by kobayasi on 2015/02/04.
  */
 public class DiagnosticsActivity extends ActionBarActivity {
+
     private static final String TAG = DiagnosticsActivity.class.getSimpleName();
 
 
