@@ -50,22 +50,73 @@ public class DiagnosticsResultFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        String infoText = null;
+
         Bundle args = getArguments();
         int diagnosticsTypeIndex = args.getInt("DIAGNOSTICS_TYPE_INDEX");
         switch (diagnosticsTypeIndex) {
 
             case 0:
-                diagnosticsTypeAsyncTaskExecutor();
+                infoText = diagnosticsTypeDeviceInformation();
+                break;
+
+            case 1:
+                infoText = diagnosticsTypeMemoryInformation();
+                break;
+
+            case 2:
+                infoText = diagnosticsTypeAsyncTaskExecutor();
                 break;
 
             default:
                 break;
         }
+
+        if (infoText != null) {
+            TextView textView = (TextView) getActivity().findViewById(R.id.result_text);
+            textView.setText(infoText);
+        }
+    }
+
+
+    private String diagnosticsTypeDeviceInformation() {
+        StringBuilder builder = new StringBuilder()
+                .append("------------------------------\r\n")
+                .append("Device Information\r\n")
+                .append("  BRAND: " + android.os.Build.BRAND + "\r\n")
+                .append("  DEVICE: " + android.os.Build.DEVICE + "\r\n")
+                .append("  DISPLAY: " + android.os.Build.DISPLAY + "\r\n")
+                .append("  MANUFACTURER: " + android.os.Build.MANUFACTURER + "\r\n")
+                .append("  MODEL: " + android.os.Build.MODEL + "\r\n")
+                .append("  PRODUCT: " + android.os.Build.PRODUCT + "\r\n")
+                .append("  VERSION.CODENAME: " + android.os.Build.VERSION.CODENAME + "\r\n")
+                .append("  VERSION.INCREMENTAL: " + android.os.Build.VERSION.INCREMENTAL + "\r\n")
+                .append("  VERSION.RELEASE: " + android.os.Build.VERSION.RELEASE + "\r\n")
+                .append("  VERSION.SDK_INT: " + android.os.Build.VERSION.SDK_INT + "\r\n")
+                .append("------------------------------");
+
+        return builder.toString();
+    }
+
+
+    private String diagnosticsTypeMemoryInformation() {
+        Runtime runtime = Runtime.getRuntime();
+
+        StringBuilder builder = new StringBuilder()
+                .append("------------------------------\r\n")
+                .append("Memory Information\r\n")
+                .append("  Total: " + runtime.totalMemory() + "\r\n")
+                .append("  Free : " + runtime.freeMemory() + "\r\n")
+                .append("  Total: " + (runtime.totalMemory() - runtime.freeMemory()) + "\r\n")
+                .append("  Max  : " + runtime.maxMemory() + "\r\n")
+                .append("------------------------------");
+
+        return builder.toString();
     }
 
 
     @TargetApi(11)
-    private void diagnosticsTypeAsyncTaskExecutor() {
+    private String diagnosticsTypeAsyncTaskExecutor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) AsyncTask.THREAD_POOL_EXECUTOR;
 
@@ -82,8 +133,9 @@ public class DiagnosticsResultFragment extends Fragment {
                     .append("  getTaskCount: " + executor.getTaskCount() + "\r\n")
                     .append("------------------------------");
 
-            TextView textView = (TextView) getActivity().findViewById(R.id.result_text);
-            textView.setText(builder);
+            return builder.toString();
         }
+
+        return null;
     }
 }
