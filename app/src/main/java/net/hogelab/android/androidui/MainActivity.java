@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
+import net.hogelab.android.androidui.layout.LayoutActivity;
 import net.hogelab.android.androidui.loader.LoaderActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
@@ -30,6 +31,7 @@ public class MainActivity extends ActionBarActivity {
             "Music Receiver",
             "Media Control & Notification",
             "Loader",
+            "Layout",
             "Music Player"
     };
 
@@ -117,6 +119,10 @@ public class MainActivity extends ActionBarActivity {
                             break;
 
                         case 5:
+                            onSelectLayout();
+                            break;
+
+                        case 6:
                             onSelectMusicPlayer();
                             break;
 
@@ -149,6 +155,11 @@ public class MainActivity extends ActionBarActivity {
 
         private void onSelectLoader() {
             Intent intent = new Intent(getActivity(), LoaderActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectLayout() {
+            Intent intent = new Intent(getActivity(), LayoutActivity.class);
             startActivity(intent);
         }
 

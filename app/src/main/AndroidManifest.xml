@@ -43,7 +43,12 @@
 
         <activity
             android:name=".loader.LoaderActivity"
-            android:label="AndroidUI Music Player" >
+            android:label="AndroidUI Loader" >
+        </activity>
+
+        <activity
+            android:name=".layout.LayoutActivity"
+            android:label="AndroidUI Layout" >
         </activity>
 
         <activity
