@@ -51,6 +51,5 @@
             android:layout_toLeftOf="@id/maku_button"
             android:text="hoge" />
 
-
     </RelativeLayout>
 </LinearLayout>
