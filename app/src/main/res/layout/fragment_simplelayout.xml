@@ -4,27 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Kuma" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="hoge" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Maku" />
-    </LinearLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -50,6 +29,47 @@
             android:layout_toRightOf="@id/kuma_button"
             android:layout_toLeftOf="@id/maku_button"
             android:text="hoge" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/kuma_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:text="Kuma" />
+
+        <RelativeLayout
+            android:id="@+id/button_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentRight="true" >
+
+            <Button
+                android:id="@+id/maku_button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Maku" />
+
+        </RelativeLayout>
+
+        <SeekBar
+            android:id="@+id/musicPlayerVolume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/kuma_button2"
+            android:layout_toLeftOf="@id/button_container"
+            android:layout_centerVertical="true"
+            android:progress="0" />
 
     </RelativeLayout>
 </LinearLayout>
