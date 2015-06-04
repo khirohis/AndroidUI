@@ -219,6 +219,7 @@ public class MediaControlManager {
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, info.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, info.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, info.artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, info.album)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.valueOf(info.duration));
 
