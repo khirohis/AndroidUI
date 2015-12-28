@@ -12,9 +12,9 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
-import android.media.session.MediaSession;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+import android.os.SystemClock;
+import android.support.v7.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -31,7 +31,7 @@ public class MediaControlManager {
     private static final String TAG = MediaControlManager.class.getSimpleName();
 
 
-    private static final int NOTIFICATION_ID = 1;
+    private static final int NOTIFICATION_ID = 1942;
     private static final int ACTION_REQUEST_CODE = 1;
 
 
@@ -46,6 +46,7 @@ public class MediaControlManager {
     private boolean mSupportMediaControlNotification;
 
     private MediaSessionCompat mMediaSession;
+    private MediaSessionCompat.OnActiveChangeListener mActiveChangeListener;
     private ComponentName mMediaButtonReceiver;
     @SuppressWarnings("deprecation")
     private RemoteControlClient mRemoteControlClient;
@@ -110,7 +111,7 @@ public class MediaControlManager {
 
     public void setMetadata(int state, PlayingInfo info) {
         sendBroadcast(PlayerAction.METACHANGED, info);
-        sendBroadcast(PlayerAction.SYSTEM_METACHANGED, info);
+//        sendBroadcast(PlayerAction.SYSTEM_METACHANGED, info);
 
         if (mSupportMediaSession) {
             setMetadataMediaSession(info);
@@ -154,17 +155,40 @@ public class MediaControlManager {
      */
 
     private void startMediaSession() {
-        mMediaSession = new MediaSessionCompat(mService, "test session");
-        mMediaSession.setCallback(new MediaSessionCallback(mService));
-        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
-        mMediaSession.setActive(true);
+        if (mMediaSession == null) {
+            ComponentName componentName = new ComponentName(mService, MediaSessionCallback.class);
+            mMediaSession = new MediaSessionCompat(mService, "AndroidUI session", componentName, null);
+            mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+            mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
+            mMediaSession.setActive(true);
+
+            if (mActiveChangeListener == null) {
+                mActiveChangeListener = new MediaSessionCompat.OnActiveChangeListener() {
+                    @Override
+                    public void onActiveChanged() {
+                        Log.d(TAG, "onActiveChanged MediaSession#isActive() = " + mMediaSession.isActive());
+                    }
+                };
+
+                mMediaSession.addOnActiveChangeListener(mActiveChangeListener);
+            }
+        }
     }
 
     private void stopMediaSession() {
-        mMediaSession.setActive(false);
-        mMediaSession.release();
+        if (mMediaSession != null) {
+            if (mActiveChangeListener != null) {
+                mMediaSession.removeOnActiveChangeListener(mActiveChangeListener);
+                mActiveChangeListener = null;
+            }
+
+            mMediaSession.setActive(false);
+
+            mMediaSession.release();
+            mMediaSession = null;
+        }
     }
 
 
@@ -175,7 +199,7 @@ public class MediaControlManager {
         switch (state) {
 
             case PlaybackState.PLAYING:
-                builder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f);
+                builder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f, SystemClock.elapsedRealtime());
                 builder.setActions(PlaybackStateCompat.ACTION_PAUSE |
                         PlaybackStateCompat.ACTION_STOP |
                         PlaybackStateCompat.ACTION_REWIND |
@@ -187,7 +211,7 @@ public class MediaControlManager {
                 break;
 
             case PlaybackState.PAUSED:
-                builder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 1.0f);
+                builder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 1.0f, SystemClock.elapsedRealtime());
                 builder.setActions(PlaybackStateCompat.ACTION_PLAY |
                         PlaybackStateCompat.ACTION_STOP |
                         PlaybackStateCompat.ACTION_REWIND |
@@ -199,7 +223,7 @@ public class MediaControlManager {
                 break;
 
             case PlaybackState.STOPPED:
-                builder.setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f);
+                builder.setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f, SystemClock.elapsedRealtime());
                 builder.setActions(PlaybackStateCompat.ACTION_PLAY |
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
                         PlaybackStateCompat.ACTION_SKIP_TO_NEXT);
@@ -381,16 +405,15 @@ public class MediaControlManager {
     private void notifyMediaStyle(int state, PlayingInfo info) {
         PendingIntent pendingIntent = createControlActionIntent(PlayerAction.STOP);
 
-        MediaSession session = (MediaSession) mMediaSession.getMediaSession();
-        Notification.MediaStyle style = new Notification.MediaStyle()
-                .setMediaSession(session.getSessionToken())
+        NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle()
+                .setMediaSession(mMediaSession.getSessionToken())
                 .setShowActionsInCompactView(0, 1, 2);
 
-        Notification.Builder builder = new Notification.Builder(mService)
-                .setShowWhen(false)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mService);
+        builder.setShowWhen(false)
                 .setSmallIcon(R.drawable.ic_launcher)
 //                .setLargeIcon(artwork)
-                .setColor(0xFFEEEEEE)
+                .setColor(0xFF66CCCC)
                 .setDeleteIntent(pendingIntent)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setStyle(style);
@@ -399,7 +422,7 @@ public class MediaControlManager {
             builder.setContentText(info.artist + " / " + info.album);
             builder.setContentTitle(info.title);
         } else {
-            builder.setContentTitle("-- / --");
+            builder.setContentText("-- / --");
             builder.setContentTitle("----");
         }
 
@@ -424,15 +447,15 @@ public class MediaControlManager {
     }
 
     @TargetApi(21)
-    private Notification.Action createControlAction(int resourceId, String title, String action) {
+    private NotificationCompat.Action createControlAction(int resourceId, String title, String action) {
         PendingIntent intent = createControlActionIntent(action);
 
-        return new Notification.Action.Builder(resourceId, title, intent).build();
+        return new NotificationCompat.Action.Builder(resourceId, title, intent).build();
     }
 
 
 
-    private static class MediaSessionCallback extends MediaSessionCompat.Callback {
+    public static class MediaSessionCallback extends MediaSessionCompat.Callback {
         private static final String TAG = MediaSessionCallback.class.getSimpleName();
 
 

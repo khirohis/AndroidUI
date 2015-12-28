@@ -4,8 +4,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,7 +17,7 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by hirohisa on 2015/01/02.
  */
-public class NavigationDrawerActivity extends ActionBarActivity {
+public class NavigationDrawerActivity extends AppCompatActivity {
     private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
 
 

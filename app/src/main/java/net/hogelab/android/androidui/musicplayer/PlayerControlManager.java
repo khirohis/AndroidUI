@@ -179,52 +179,8 @@ public class PlayerControlManager {
 
 
     private void startMediaSession() {
-        mMediaSession = new MediaSessionCompat(mPlayerService, "test session");
-        mMediaSession.setCallback(new MediaSessionCompat.Callback() {
-
-            @Override
-            public void onPlay() {
-                super.onPlay();
-            }
-
-            @Override
-            public void onPause() {
-                super.onPause();
-            }
-
-            @Override
-            public void onSkipToNext() {
-                super.onSkipToNext();
-            }
-
-            @Override
-            public void onSkipToPrevious() {
-                super.onSkipToPrevious();
-            }
-
-            @Override
-            public void onFastForward() {
-                super.onFastForward();
-            }
-
-            @Override
-            public void onRewind() {
-                super.onRewind();
-            }
-
-            @Override
-            public void onStop() {
-                super.onStop();
-
-                cancelNotification();
-            }
-
-            @Override
-            public void onSeekTo(long pos) {
-                super.onSeekTo(pos);
-            }
-        });
-
+        ComponentName componentName = new ComponentName(mPlayerService, MediaSessionCallback.class);
+        mMediaSession = new MediaSessionCompat(mPlayerService, "AndroidUI session", componentName, null);
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
@@ -359,6 +315,54 @@ public class PlayerControlManager {
                 .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.artist)
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, Long.getLong(track.duration))
                 .apply();
+    }
+
+
+    private static class MediaSessionCallback extends MediaSessionCompat.Callback {
+        private static final String TAG = MediaSessionCallback.class.getSimpleName();
+
+
+        @Override
+        public void onPlay() {
+            super.onPlay();
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+        }
+
+        @Override
+        public void onSkipToNext() {
+            super.onSkipToNext();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            super.onSkipToPrevious();
+        }
+
+        @Override
+        public void onFastForward() {
+            super.onFastForward();
+        }
+
+        @Override
+        public void onRewind() {
+            super.onRewind();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+
+//            cancelNotification();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+            super.onSeekTo(pos);
+        }
     }
 
 

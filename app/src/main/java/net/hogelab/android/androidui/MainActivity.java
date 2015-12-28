@@ -2,7 +2,7 @@ package net.hogelab.android.androidui;
 
 import android.content.Intent;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,13 +15,14 @@ import android.widget.ArrayAdapter;
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
 import net.hogelab.android.androidui.layout.LayoutActivity;
 import net.hogelab.android.androidui.loader.LoaderActivity;
+import net.hogelab.android.androidui.marshmallow.MarshmallowActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
 import net.hogelab.android.androidui.navigationdrawer.NavigationDrawerActivity;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
 
@@ -32,7 +33,8 @@ public class MainActivity extends ActionBarActivity {
             "Media Control & Notification",
             "Loader",
             "Layout",
-            "Music Player"
+            "Music Player",
+            "Marshmallow",
     };
 
 
@@ -126,6 +128,10 @@ public class MainActivity extends ActionBarActivity {
                             onSelectMusicPlayer();
                             break;
 
+                        case 7:
+                            onSelectMarshmallow();
+                            break;
+
                         default:
                             break;
                     }
@@ -165,6 +171,11 @@ public class MainActivity extends ActionBarActivity {
 
         private void onSelectMusicPlayer() {
             Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectMarshmallow() {
+            Intent intent = new Intent(getActivity(), MarshmallowActivity.class);
             startActivity(intent);
         }
     }

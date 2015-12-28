@@ -2,7 +2,7 @@ package net.hogelab.android.androidui.diagnostics;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +16,7 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by kobayasi on 2015/02/04.
  */
-public class DiagnosticsActivity extends ActionBarActivity {
+public class DiagnosticsActivity extends AppCompatActivity {
 
     private static final String TAG = DiagnosticsActivity.class.getSimpleName();
 
