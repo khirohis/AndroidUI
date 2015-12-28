@@ -2,7 +2,7 @@ package net.hogelab.android.androidui.musicreceiver;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,7 @@ import java.util.Locale;
 /**
  * Created by kobayasi on 2015/01/20.
  */
-public class MusicReceiverActivity extends ActionBarActivity {
+public class MusicReceiverActivity extends AppCompatActivity {
     private static final String TAG = MusicReceiverActivity.class.getSimpleName();
 
 

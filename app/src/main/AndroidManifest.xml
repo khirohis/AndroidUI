@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.hogelab.android.androidui" >
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
 
@@ -59,6 +61,11 @@
         <activity
             android:name=".musicplayer.PlayerActivity"
             android:label="AndroidUI Player" >
+        </activity>
+
+        <activity
+            android:name=".marshmallow.MarshmallowActivity"
+            android:label="AndroidUI Marshmallow" >
         </activity>
 
         <service android:name=".mediacontrolandnotification.PlayerMockService">

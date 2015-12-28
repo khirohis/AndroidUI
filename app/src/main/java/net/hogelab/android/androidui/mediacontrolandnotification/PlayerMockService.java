@@ -202,8 +202,6 @@ public class PlayerMockService extends Service
     }
 
     private void stop() {
-        boolean handled = false;
-
         switch (mPlaybackState) {
 
             case PlaybackState.BUFFERING:

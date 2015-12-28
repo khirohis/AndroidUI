@@ -7,7 +7,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +18,7 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by kobayasi on 2015/01/27.
  */
-public class MediaControlAndNotificationActivity extends ActionBarActivity {
+public class MediaControlAndNotificationActivity extends AppCompatActivity {
 
     private static final String TAG = MediaControlAndNotificationActivity.class.getSimpleName();
 

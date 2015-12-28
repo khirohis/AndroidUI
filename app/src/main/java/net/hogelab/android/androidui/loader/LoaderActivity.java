@@ -2,6 +2,7 @@ package net.hogelab.android.androidui.loader;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,7 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,7 @@ import net.hogelab.android.androidui.R;
 /**
  * Created by hirohisa on 2015/02/02.
  */
-public class LoaderActivity extends ActionBarActivity {
+public class LoaderActivity extends AppCompatActivity {
     private static final String TAG = LoaderActivity.class.getSimpleName();
 
 
@@ -74,6 +75,25 @@ public class LoaderActivity extends ActionBarActivity {
             super.onActivityCreated(savedInstanceState);
 
             getLoaderManager().initLoader(TEST_LOADER_ID, null, this);
+
+            (new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                public Void doInBackground(Void... params) {
+                    Log.d(TAG, "doInBackground");
+
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.d(TAG, "doInBackground: return");
+
+                    return null;
+                }
+
+            }).execute();
         }
 
         @Override
