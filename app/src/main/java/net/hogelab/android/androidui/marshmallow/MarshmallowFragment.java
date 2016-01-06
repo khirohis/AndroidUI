@@ -1,9 +1,14 @@
 package net.hogelab.android.androidui.marshmallow;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.PermissionChecker;
@@ -32,9 +37,6 @@ public class MarshmallowFragment extends Fragment {
 
         return fragment;
     }
-
-
-    private View mButtonContainer;
 
 
     public MarshmallowFragment() {
@@ -95,6 +97,25 @@ public class MarshmallowFragment extends Fragment {
                     }
                 });
             }
+
+            textView = (TextView) getActivity().findViewById(R.id.textViewIsIgnoringBatteryOptimizationsText);
+            button = (Button) getActivity().findViewById(R.id.buttonRequestIgnoringBatteryOptimizations);
+            PowerManager powerManager = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
+            hasPermission = powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName());
+            if (hasPermission) {
+                textView.setText("Yes");
+                button.setVisibility(View.GONE);
+            } else {
+                textView.setText("No");
+                button.setVisibility(View.VISIBLE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onRequestIgnoringBatteryOptimizations();
+                    }
+                });
+            }
+
         } else {
             TextView textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
             textView.setText("No");
@@ -103,6 +124,9 @@ public class MarshmallowFragment extends Fragment {
             textView.setText("N/A");
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanWriteExternalStorageText);
+            textView.setText("N/A");
+
+            textView = (TextView) getActivity().findViewById(R.id.textViewIsIgnoringBatteryOptimizationsText);
             textView.setText("N/A");
         }
     }
@@ -139,5 +163,11 @@ public class MarshmallowFragment extends Fragment {
         ActivityCompat.requestPermissions(getActivity(),
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 REQUEST_WRITE_EXTERNAL_STORAGE);
+    }
+
+    private void onRequestIgnoringBatteryOptimizations() {
+        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+        intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
+        startActivity(intent);
     }
 }
