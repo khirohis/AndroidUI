@@ -54,9 +54,10 @@ public class MarshmallowFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        TextView textView;
+        Button button;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            TextView textView;
-            Button button;
             boolean hasPermission;
 
             textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
@@ -117,17 +118,23 @@ public class MarshmallowFragment extends Fragment {
             }
 
         } else {
-            TextView textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
+            textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
             textView.setText("No");
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanReadPhoneStateText);
+            button = (Button) getActivity().findViewById(R.id.buttonRequestReadPhoneState);
             textView.setText("N/A");
+            button.setVisibility(View.GONE);
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanWriteExternalStorageText);
+            button = (Button) getActivity().findViewById(R.id.buttonRequestWriteExternalStorage);
             textView.setText("N/A");
+            button.setVisibility(View.GONE);
 
             textView = (TextView) getActivity().findViewById(R.id.textViewIsIgnoringBatteryOptimizationsText);
+            button = (Button) getActivity().findViewById(R.id.buttonRequestIgnoringBatteryOptimizations);
             textView.setText("N/A");
+            button.setVisibility(View.GONE);
         }
     }
 
