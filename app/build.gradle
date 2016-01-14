@@ -10,6 +10,7 @@ android {
         targetSdkVersion 9
         versionCode 1
         versionName "1.0"
+        resValue "string", "app_name", "AndroidUI target Gingerbread"
     }
     buildTypes {
         release {
@@ -17,10 +18,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+        targetGingerbread {
+        }
+        targetMarshmallow {
+            applicationId 'net.hogelab.android.androiduim'
+            targetSdkVersion 23
+            resValue "string", "app_name", "AndroidUI target Marshmallow"
+        }
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
 }
