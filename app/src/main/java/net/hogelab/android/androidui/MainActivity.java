@@ -21,6 +21,7 @@ import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAnd
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
 import net.hogelab.android.androidui.navigationdrawer.NavigationDrawerActivity;
+import net.hogelab.android.androidui.tabhost.TabHostActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
             "Layout",
             "Music Player",
             "Marshmallow",
+            "TabHost",
     };
 
 
@@ -135,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
                             onSelectMarshmallow();
                             break;
 
+                        case 8:
+                            onSelectTabHost();
+                            break;
+
                         default:
                             break;
                     }
@@ -179,6 +185,11 @@ public class MainActivity extends AppCompatActivity {
 
         private void onSelectMarshmallow() {
             Intent intent = new Intent(getActivity(), MarshmallowActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectTabHost() {
+            Intent intent = new Intent(getActivity(), TabHostActivity.class);
             startActivity(intent);
         }
     }
