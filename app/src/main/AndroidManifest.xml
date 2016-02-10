@@ -70,6 +70,11 @@
             android:label="AndroidUI Marshmallow" >
         </activity>
 
+        <activity
+            android:name=".tabhost.TabHostActivity"
+            android:label="AndroidUI TabHost" >
+        </activity>
+
         <service android:name=".mediacontrolandnotification.PlayerMockService">
             <intent-filter>
                 <action android:name="net.hogelab.android.androidui.set_playlist" />
