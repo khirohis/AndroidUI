@@ -533,7 +533,7 @@ public class MediaControlManager {
 
             String action = intent.getAction();
             if (action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-                context.startService(new Intent(PlayerAction.PAUSE));
+                context.startService(newPlayerActionIntent(context, PlayerAction.PAUSE));
                 return;
             } else if (!action.equals(Intent.ACTION_MEDIA_BUTTON)) {
                 return;
@@ -548,33 +548,41 @@ public class MediaControlManager {
             switch (keyCode) {
 
                 case KeyEvent.KEYCODE_HEADSETHOOK:
-                    context.startService(new Intent(PlayerAction.TOGGLE_PLAY_PAUSE));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.TOGGLE_PLAY_PAUSE));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    context.startService(new Intent(PlayerAction.TOGGLE_PLAY_PAUSE));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.TOGGLE_PLAY_PAUSE));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PLAY:
-                    context.startService(new Intent(PlayerAction.PLAY));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.PLAY));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                    context.startService(new Intent(PlayerAction.PAUSE));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.PAUSE));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_STOP:
-                    context.startService(new Intent(PlayerAction.STOP));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.STOP));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    context.startService(new Intent(PlayerAction.SKIP_TO_NEXT));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.SKIP_TO_NEXT));
                     break;
 
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    context.startService(new Intent(PlayerAction.SKIP_TO_PREVIOUS));
+                    context.startService(newPlayerActionIntent(context, PlayerAction.SKIP_TO_PREVIOUS));
                     break;
             }
+        }
+
+
+        private Intent newPlayerActionIntent(Context context, String action) {
+            Intent intent = new Intent(context, PlayerMockService.class);
+            intent.setAction(action);
+
+            return intent;
         }
     }
 }
