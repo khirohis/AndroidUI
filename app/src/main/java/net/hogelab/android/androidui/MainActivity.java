@@ -1,10 +1,7 @@
 package net.hogelab.android.androidui;
 
 import android.content.Intent;
-import android.support.v4.app.ListFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,17 +17,19 @@ import net.hogelab.android.androidui.marshmallow.MarshmallowActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
-import net.hogelab.android.androidui.navigationdrawer.NavigationDrawerActivity;
 import net.hogelab.android.androidui.tabhost.TabHostActivity;
+import net.hogelab.android.androidui.uicatalog.UiCatalogActivity;
+import net.hogelab.pfw.PFWAppCompatActivity;
+import net.hogelab.pfw.PFWListFragment;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends PFWAppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
 
     private static final String[] items = {
             "Diagnostics",
-            "Navigation Drawer",
+            "UI Catalog",
             "Music Receiver",
             "Media Control & Notification",
             "Loader",
@@ -43,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -78,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends ListFragment {
+    public static class PlaceholderFragment extends PFWListFragment {
 
         public PlaceholderFragment() {
         }
@@ -110,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
 
                         case 1:
-                            onSelectNavigationDrawer();
+                            onSelectUiCatalog();
                             break;
 
                         case 2:
@@ -153,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        private void onSelectNavigationDrawer() {
-            Intent intent = new Intent(getActivity(), NavigationDrawerActivity.class);
+        private void onSelectUiCatalog() {
+            Intent intent = new Intent(getActivity(), UiCatalogActivity.class);
             startActivity(intent);
         }
 
