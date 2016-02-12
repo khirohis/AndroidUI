@@ -31,8 +31,9 @@
         </activity>
 
         <activity
-            android:name=".navigationdrawer.NavigationDrawerActivity"
-            android:label="AndroidUI Navigation Drawer" >
+            android:name=".uicatalog.UiCatalogActivity"
+            android:label="AndroidUI UI Catalog"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
 
         <activity
