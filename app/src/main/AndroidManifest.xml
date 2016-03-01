@@ -52,11 +52,6 @@
         </activity>
 
         <activity
-            android:name=".layout.LayoutActivity"
-            android:label="AndroidUI Layout" >
-        </activity>
-
-        <activity
             android:name=".musicplayer.MusicPlayerActivity"
             android:label="AndroidUI Music Player" >
         </activity>
@@ -69,11 +64,6 @@
         <activity
             android:name=".marshmallow.MarshmallowActivity"
             android:label="AndroidUI Marshmallow" >
-        </activity>
-
-        <activity
-            android:name=".tabhost.TabHostActivity"
-            android:label="AndroidUI TabHost" >
         </activity>
 
         <service android:name=".mediacontrolandnotification.PlayerMockService">
