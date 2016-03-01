@@ -11,13 +11,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
-import net.hogelab.android.androidui.layout.LayoutActivity;
 import net.hogelab.android.androidui.loader.LoaderActivity;
 import net.hogelab.android.androidui.marshmallow.MarshmallowActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
-import net.hogelab.android.androidui.tabhost.TabHostActivity;
 import net.hogelab.android.androidui.uicatalog.UiCatalogActivity;
 import net.hogelab.pfw.PFWAppCompatActivity;
 import net.hogelab.pfw.PFWListFragment;
@@ -33,10 +31,8 @@ public class MainActivity extends PFWAppCompatActivity {
             "Music Receiver",
             "Media Control & Notification",
             "Loader",
-            "Layout",
             "Music Player",
             "Marshmallow",
-            "TabHost",
     };
 
 
@@ -123,19 +119,11 @@ public class MainActivity extends PFWAppCompatActivity {
                             break;
 
                         case 5:
-                            onSelectLayout();
-                            break;
-
-                        case 6:
                             onSelectMusicPlayer();
                             break;
 
-                        case 7:
+                        case 6:
                             onSelectMarshmallow();
-                            break;
-
-                        case 8:
-                            onSelectTabHost();
                             break;
 
                         default:
@@ -170,11 +158,6 @@ public class MainActivity extends PFWAppCompatActivity {
             startActivity(intent);
         }
 
-        private void onSelectLayout() {
-            Intent intent = new Intent(getActivity(), LayoutActivity.class);
-            startActivity(intent);
-        }
-
         private void onSelectMusicPlayer() {
             Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
             startActivity(intent);
@@ -182,11 +165,6 @@ public class MainActivity extends PFWAppCompatActivity {
 
         private void onSelectMarshmallow() {
             Intent intent = new Intent(getActivity(), MarshmallowActivity.class);
-            startActivity(intent);
-        }
-
-        private void onSelectTabHost() {
-            Intent intent = new Intent(getActivity(), TabHostActivity.class);
             startActivity(intent);
         }
     }
