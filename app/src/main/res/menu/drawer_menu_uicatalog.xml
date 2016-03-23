@@ -12,4 +12,8 @@
         </menu>
     </item>
 
+    <item android:title="Misc.">
+        <menu>
+        </menu>
+    </item>
 </menu>

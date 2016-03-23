@@ -66,6 +66,11 @@
             android:label="AndroidUI Marshmallow" >
         </activity>
 
+        <activity
+            android:name=".databinding.DataBindingActivity"
+            android:label="AndroidUI Data Binding" >
+        </activity>
+
         <service android:name=".mediacontrolandnotification.PlayerMockService">
             <intent-filter>
                 <action android:name="net.hogelab.android.androidui.set_playlist" />

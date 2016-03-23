@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
+import net.hogelab.android.androidui.databinding.DataBindingActivity;
 import net.hogelab.android.androidui.loader.LoaderActivity;
 import net.hogelab.android.androidui.marshmallow.MarshmallowActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
@@ -33,6 +34,7 @@ public class MainActivity extends PFWAppCompatActivity {
             "Loader",
             "Music Player",
             "Marshmallow",
+            "Data Binding",
     };
 
 
@@ -126,6 +128,10 @@ public class MainActivity extends PFWAppCompatActivity {
                             onSelectMarshmallow();
                             break;
 
+                        case 7:
+                            onSelectDataBinding();
+                            break;
+
                         default:
                             break;
                     }
@@ -165,6 +171,11 @@ public class MainActivity extends PFWAppCompatActivity {
 
         private void onSelectMarshmallow() {
             Intent intent = new Intent(getActivity(), MarshmallowActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectDataBinding() {
+            Intent intent = new Intent(getActivity(), DataBindingActivity.class);
             startActivity(intent);
         }
     }

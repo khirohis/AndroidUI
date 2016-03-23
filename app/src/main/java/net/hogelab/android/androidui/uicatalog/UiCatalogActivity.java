@@ -1,10 +1,7 @@
 package net.hogelab.android.androidui.uicatalog;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -29,20 +26,28 @@ import net.hogelab.pfw.PFWFragment;
 public class UiCatalogActivity extends PFWAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = UiCatalogActivity.class.getSimpleName();
+
+    private Toolbar mToolbar;
+    private DrawerLayout mDrawerLayout;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_uicatalog);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigationdrawer_open, R.string.navigationdrawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (mDrawerLayout != null) {
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, mDrawerLayout, mToolbar, R.string.navigationdrawer_open, R.string.navigationdrawer_close);
+            mDrawerLayout.setDrawerListener(toggle);
+            toggle.syncState();
+        }
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -56,12 +61,15 @@ public class UiCatalogActivity extends PFWAppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        if (mDrawerLayout != null) {
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+
+                return;
+            }
         }
+
+        super.onBackPressed();
     }
 
     @Override
@@ -103,8 +111,9 @@ public class UiCatalogActivity extends PFWAppCompatActivity
                 break;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        if (mDrawerLayout != null) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
 
         return true;
     }

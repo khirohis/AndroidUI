@@ -4,6 +4,10 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
+    dataBinding {
+        enabled = true
+    }
+
     defaultConfig {
         applicationId "net.hogelab.android.androidui"
         minSdkVersion 9
@@ -12,12 +16,14 @@ android {
         versionName "1.0"
         resValue "string", "app_name", "AndroidUI target Gingerbread"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     productFlavors {
         targetGingerbread {
         }
