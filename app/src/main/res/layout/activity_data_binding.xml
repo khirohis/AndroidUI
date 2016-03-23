@@ -5,15 +5,39 @@
 
     <data>
         <variable
-            name="content_title"
+            name="contentTitle"
             type="String" />
     </data>
 
-    <FrameLayout
-        android:id="@+id/data_binding_container"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".diagnostics/DataBindingActivity"
-        tools:ignore="MergeRootFrame" />
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/content_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_margin="8dp"
+            android:textAlignment="center"
+            android:text="@{contentTitle}"/>
+
+        <TextView
+            android:id="@+id/content_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/content_title"
+            android:layout_margin="8dp"
+            android:textAlignment="center"/>
+
+        <FrameLayout
+            android:id="@+id/data_binding_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/content_subtitle"
+            tools:context=".diagnostics/DataBindingActivity"
+            tools:ignore="MergeRootFrame" />
+
+    </RelativeLayout>
 
 </layout>

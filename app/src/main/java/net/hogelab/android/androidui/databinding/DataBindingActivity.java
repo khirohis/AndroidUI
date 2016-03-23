@@ -23,6 +23,8 @@ public class DataBindingActivity extends PFWAppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_data_binding);
+        mBinding.setContentTitle("Data Binding");
+        mBinding.contentSubtitle.setText("View Binding");
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
