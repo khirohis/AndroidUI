@@ -1,10 +1,9 @@
 package net.hogelab.android.androidui.databinding;
 
 import android.database.Cursor;
-import android.databinding.BindingAdapter;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
+import android.view.View;
 
 /**
  * Created by kobayasi on 2016/03/23.
@@ -15,16 +14,6 @@ public class DataBindingListItemViewModel {
     private String title;
     private String subtitle;
     private String thumbnailUrl;
-
-
-    @BindingAdapter({"bind:imageUrl"})
-    public static void loadImage(ImageView imageView, String url) {
-        Log.d(TAG, url);
-        // ロードして
-
-        // セットする
-//        imageView.setImageBitmap(bitmap);
-    }
 
 
     public DataBindingListItemViewModel(Cursor cursor) {
@@ -44,5 +33,16 @@ public class DataBindingListItemViewModel {
 
     public String getThumbnailUrl() {
         return thumbnailUrl;
+    }
+
+
+    public View.OnClickListener onClickListItem() {
+        return new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: " + title);
+            }
+        };
     }
 }
