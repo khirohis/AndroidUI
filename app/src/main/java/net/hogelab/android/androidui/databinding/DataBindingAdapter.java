@@ -2,6 +2,7 @@ package net.hogelab.android.androidui.databinding;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,14 +31,16 @@ public class DataBindingAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         ListItemDataBindingBinding binding = ListItemDataBindingBinding.inflate(mInflater);
         View view = binding.getRoot();
-        view.setTag(binding);
 
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ListItemDataBindingBinding binding = (ListItemDataBindingBinding) view.getTag();
-        binding.setViewModel(new DataBindingListItemViewModel(cursor));
+        ListItemDataBindingBinding binding = DataBindingUtil.getBinding(view);
+        if (binding != null) {
+            binding.setViewModel(new DataBindingListItemViewModel(cursor));
+            binding.thumbnail.setImageDrawable(null);
+        }
     }
 }
