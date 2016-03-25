@@ -3,14 +3,12 @@ package net.hogelab.android.androidui.databinding;
 import android.content.Context;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 
 import net.hogelab.android.androidui.databinding.ListItemDataBindingBinding;
-import net.hogelab.android.androidui.R;
 
 /**
  * Created by kobayasi on 2016/03/23.
@@ -39,8 +37,10 @@ public class DataBindingAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ListItemDataBindingBinding binding = DataBindingUtil.getBinding(view);
         if (binding != null) {
-            binding.setViewModel(new DataBindingListItemViewModel(cursor));
-            binding.thumbnail.setImageDrawable(null);
+            // clear immediate
+//            binding.thumbnail.setImageDrawable(null);
+
+            binding.setViewModel(new DataBindingListItemViewModel(view.getContext().getApplicationContext(), cursor));
         }
     }
 }
