@@ -1,12 +1,12 @@
 package net.hogelab.android.androidui.databinding;
 
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import net.hogelab.android.androidui.databinding.ActivityDataBindingBinding;
 import net.hogelab.android.androidui.R;
+import net.hogelab.android.androidui.databinding.viewmodel.DataBindingRootViewModel;
 import net.hogelab.pfw.PFWAppCompatActivity;
 
 /**
@@ -22,9 +22,9 @@ public class DataBindingActivity extends PFWAppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_data_binding);
-        mBinding.setContentTitle("Data Binding");
-        mBinding.contentSubtitle.setText("View Binding");
+        mBinding = ActivityDataBindingBinding.inflate(getLayoutInflater());
+        mBinding.setViewModel(new DataBindingRootViewModel());
+        setContentView(mBinding.getRoot());
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

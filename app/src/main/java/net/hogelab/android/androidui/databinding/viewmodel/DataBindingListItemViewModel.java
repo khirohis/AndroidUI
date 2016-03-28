@@ -1,4 +1,4 @@
-package net.hogelab.android.androidui.databinding;
+package net.hogelab.android.androidui.databinding.viewmodel;
 
 import android.content.Context;
 import android.database.Cursor;

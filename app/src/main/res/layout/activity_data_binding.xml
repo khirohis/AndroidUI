@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="net.hogelab.android.androidui.databinding.viewmodel.DataBindingRootViewModel" />
         <variable
-            name="contentTitle"
-            type="String" />
+            name="viewModel"
+            type="DataBindingRootViewModel" />
     </data>
 
     <RelativeLayout
@@ -20,7 +21,7 @@
             android:layout_alignParentTop="true"
             android:layout_margin="8dp"
             android:textAlignment="center"
-            android:text="@{contentTitle}"/>
+            android:text="@{viewModel.contentTitle}"/>
 
         <TextView
             android:id="@+id/content_subtitle"
@@ -28,7 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/content_title"
             android:layout_margin="8dp"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            android:text="@{viewModel.contentSubtitle}"/>
 
         <FrameLayout
             android:id="@+id/data_binding_container"
