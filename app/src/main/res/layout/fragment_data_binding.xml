@@ -4,6 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="net.hogelab.android.androidui.databinding.viewmodel.DataBindingViewModel" />
+
+        <variable
+            name="viewModel"
+            type="DataBindingViewModel" />
     </data>
 
     <FrameLayout

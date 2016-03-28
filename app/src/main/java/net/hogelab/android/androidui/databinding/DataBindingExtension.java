@@ -25,7 +25,7 @@ public final class DataBindingExtension {
             }
         } else {
             // デフォルト画像をセットする
-            imageView.setImageBitmap(null);
+//            imageView.setImageBitmap(null);
         }
     }
 }

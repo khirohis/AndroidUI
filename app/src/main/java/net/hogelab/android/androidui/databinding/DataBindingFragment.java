@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.hogelab.android.androidui.databinding.FragmentDataBindingBinding;
-import net.hogelab.android.androidui.R;
+import net.hogelab.android.androidui.databinding.viewmodel.DataBindingViewModel;
 import net.hogelab.android.androidui.musicplayer.entity.Album;
 import net.hogelab.pfw.PFWFragment;
 
@@ -30,15 +30,10 @@ public class DataBindingFragment extends PFWFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_data_binding, container, false);
-        return rootView;
-    }
+        mBinding = FragmentDataBindingBinding.inflate(inflater, container, false);
+        mBinding.setViewModel(new DataBindingViewModel());
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        mBinding = FragmentDataBindingBinding.bind(view);
+        return mBinding.getRoot();
     }
 
     @Override

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="net.hogelab.android.androidui.databinding.DataBindingListItemViewModel" />
+        <import type="net.hogelab.android.androidui.databinding.viewmodel.DataBindingListItemViewModel" />
 
         <variable
             name="viewModel"
@@ -26,6 +26,7 @@
             android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:background="#888888"
+            android:scaleType="fitCenter"
             android:src="@{viewModel.defaultDrawable}"
             app:imageUrl="@{viewModel.thumbnailUrl}"/>
 
