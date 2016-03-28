@@ -10,11 +10,11 @@ import com.bumptech.glide.Glide;
 /**
  * Created by kobayasi on 2016/03/24.
  */
-public final class DataBindingExtension {
+public class DataBindingExtension {
     private static final String TAG = DataBindingExtension.class.getSimpleName();
 
 
-    @BindingAdapter({"bind:imageUrl"})
+    @BindingAdapter({"app:imageUrl"})
     public static void loadImage(ImageView imageView, String imageUrl) {
         if (imageUrl != null) {
             Log.d(TAG, imageUrl);
