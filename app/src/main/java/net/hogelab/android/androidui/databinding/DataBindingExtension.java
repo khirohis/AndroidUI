@@ -14,7 +14,12 @@ public class DataBindingExtension {
     private static final String TAG = DataBindingExtension.class.getSimpleName();
 
 
-    @BindingAdapter({"app:imageUrl"})
+    @BindingAdapter("android:src")
+    public static void setSrc(ImageView view, int res){
+        view.setImageResource(res);
+    }
+
+    @BindingAdapter({"imageUrl"})
     public static void loadImage(ImageView imageView, String imageUrl) {
         if (imageUrl != null) {
             Log.d(TAG, imageUrl);

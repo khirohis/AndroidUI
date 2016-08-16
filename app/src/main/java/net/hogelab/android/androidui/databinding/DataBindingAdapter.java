@@ -39,7 +39,7 @@ public class DataBindingAdapter extends CursorAdapter {
         ListItemDataBindingBinding binding = DataBindingUtil.getBinding(view);
         if (binding != null) {
             // clear immediate
-//            binding.thumbnail.setImageDrawable(null);
+            binding.thumbnail.setImageDrawable(null);
 
             binding.setViewModel(new DataBindingListItemViewModel(view.getContext().getApplicationContext(), cursor));
         }
