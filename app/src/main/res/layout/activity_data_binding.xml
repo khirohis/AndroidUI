@@ -5,6 +5,7 @@
 
     <data>
         <import type="net.hogelab.android.androidui.databinding.viewmodel.DataBindingRootViewModel" />
+
         <variable
             name="viewModel"
             type="DataBindingRootViewModel" />
