@@ -4,23 +4,21 @@ import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWFragment;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kobayasi on 2015/02/04.
  */
-public class DiagnosticsResultFragment extends Fragment {
+public class DiagnosticsResultFragment extends PFWFragment {
     private static final String TAG = DiagnosticsResultFragment.class.getSimpleName();
 
 

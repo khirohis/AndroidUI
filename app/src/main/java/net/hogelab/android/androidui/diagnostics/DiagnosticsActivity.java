@@ -1,8 +1,6 @@
 package net.hogelab.android.androidui.diagnostics;
 
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,11 +10,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWAppCompatActivity;
+import net.hogelab.pfw.PFWListFragment;
 
 /**
  * Created by kobayasi on 2015/02/04.
  */
-public class DiagnosticsActivity extends AppCompatActivity {
+public class DiagnosticsActivity extends PFWAppCompatActivity {
 
     private static final String TAG = DiagnosticsActivity.class.getSimpleName();
 
@@ -56,7 +56,7 @@ public class DiagnosticsActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends ListFragment {
+    public static class PlaceholderFragment extends PFWListFragment {
 
         public PlaceholderFragment() {
         }

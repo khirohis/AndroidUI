@@ -6,19 +6,19 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWAppCompatActivity;
+import net.hogelab.pfw.PFWFragment;
 
 /**
  * Created by kobayasi on 2015/01/27.
  */
-public class MediaControlAndNotificationActivity extends AppCompatActivity {
+public class MediaControlAndNotificationActivity extends PFWAppCompatActivity {
 
     private static final String TAG = MediaControlAndNotificationActivity.class.getSimpleName();
 
@@ -41,7 +41,7 @@ public class MediaControlAndNotificationActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment
+    public static class PlaceholderFragment extends PFWFragment
             implements ServiceConnection {
 
         private final String TAG = PlaceholderFragment.class.getSimpleName();

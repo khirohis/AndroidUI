@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +17,13 @@ import android.widget.ListView;
 import net.hogelab.android.androidui.R;
 import net.hogelab.android.androidui.musicplayer.entity.Album;
 import net.hogelab.android.androidui.musicplayer.entity.Track;
+import net.hogelab.pfw.PFWAppCompatActivity;
+import net.hogelab.pfw.PFWListFragment;
 
 /**
  * Created by hirohisa on 2015/01/22.
  */
-public class MusicPlayerActivity extends AppCompatActivity {
+public class MusicPlayerActivity extends PFWAppCompatActivity {
     private static final String TAG = MusicPlayerActivity.class.getSimpleName();
 
 
@@ -43,7 +43,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
     }
 
 
-    public static class MusicPlayerAlbumFragment extends ListFragment
+    public static class MusicPlayerAlbumFragment extends PFWListFragment
             implements LoaderManager.LoaderCallbacks<Cursor> {
 
         private final String TAG = MusicPlayerAlbumFragment.class.getSimpleName();
@@ -145,7 +145,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
     }
 
 
-    public static class MusicPlayerTrackFragment extends ListFragment
+    public static class MusicPlayerTrackFragment extends PFWListFragment
             implements LoaderManager.LoaderCallbacks<Cursor> {
 
         private final String TAG = MusicPlayerTrackFragment.class.getSimpleName();

@@ -7,22 +7,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWAppCompatActivity;
+import net.hogelab.pfw.PFWFragment;
 
 /**
  * Created by hirohisa on 2015/02/02.
  */
-public class LoaderActivity extends AppCompatActivity {
+public class LoaderActivity extends PFWAppCompatActivity {
     private static final String TAG = LoaderActivity.class.getSimpleName();
 
 
@@ -43,7 +43,7 @@ public class LoaderActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment
+    public static class PlaceholderFragment extends PFWFragment
             implements LoaderManager.LoaderCallbacks<String> {
         private final String TAG = PlaceholderFragment.class.getSimpleName();
 

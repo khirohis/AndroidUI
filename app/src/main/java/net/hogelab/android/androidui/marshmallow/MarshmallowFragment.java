@@ -14,7 +14,6 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.PermissionChecker;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AlertDialog;
@@ -27,12 +26,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWFragment;
 
 
 /**
  * Created by kobayasi on 2015/12/28.
  */
-public class MarshmallowFragment extends Fragment {
+public class MarshmallowFragment extends PFWFragment {
     private static final String TAG = MarshmallowFragment.class.getSimpleName();
 
     private static final int REQUEST_READ_PHONE_STATE = 1;
