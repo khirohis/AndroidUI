@@ -1,16 +1,16 @@
 package net.hogelab.android.androidui.marshmallow;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWAppCompatActivity;
 
 /**
  * Created by kobayasi on 2015/12/28.
  */
-public class MarshmallowActivity extends AppCompatActivity {
+public class MarshmallowActivity extends PFWAppCompatActivity {
 
     private static final String TAG = MarshmallowActivity.class.getSimpleName();
 

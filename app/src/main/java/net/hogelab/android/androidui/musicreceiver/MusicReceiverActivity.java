@@ -1,14 +1,14 @@
 package net.hogelab.android.androidui.musicreceiver;
 
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import net.hogelab.android.androidui.R;
+import net.hogelab.pfw.PFWAppCompatActivity;
+import net.hogelab.pfw.PFWListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Locale;
 /**
  * Created by kobayasi on 2015/01/20.
  */
-public class MusicReceiverActivity extends AppCompatActivity {
+public class MusicReceiverActivity extends PFWAppCompatActivity {
     private static final String TAG = MusicReceiverActivity.class.getSimpleName();
 
 
@@ -38,7 +38,7 @@ public class MusicReceiverActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends ListFragment
+    public static class PlaceholderFragment extends PFWListFragment
             implements MusicReceiver.MusicReceiverListener {
         private final String TAG = PlaceholderFragment.class.getSimpleName();
 
