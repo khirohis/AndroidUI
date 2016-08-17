@@ -71,6 +71,11 @@
             android:label="AndroidUI Data Binding" >
         </activity>
 
+        <activity
+            android:name=".processinfo.ProcessInfoActivity"
+            android:label="AndroidUI Process Info" >
+        </activity>
+
         <service android:name=".mediacontrolandnotification.PlayerMockService">
             <intent-filter>
                 <action android:name="net.hogelab.android.androidui.set_playlist" />
