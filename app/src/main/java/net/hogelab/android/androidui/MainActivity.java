@@ -17,6 +17,7 @@ import net.hogelab.android.androidui.marshmallow.MarshmallowActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
+import net.hogelab.android.androidui.processinfo.ProcessInfoActivity;
 import net.hogelab.android.androidui.uicatalog.UiCatalogActivity;
 import net.hogelab.pfw.PFWAppCompatActivity;
 import net.hogelab.pfw.PFWListFragment;
@@ -35,6 +36,7 @@ public class MainActivity extends PFWAppCompatActivity {
             "Music Player",
             "Marshmallow",
             "Data Binding",
+            "Process Info",
     };
 
 
@@ -132,6 +134,10 @@ public class MainActivity extends PFWAppCompatActivity {
                             onSelectDataBinding();
                             break;
 
+                        case 8:
+                            onSelectProcessInfo();
+                            break;
+
                         default:
                             break;
                     }
@@ -176,6 +182,11 @@ public class MainActivity extends PFWAppCompatActivity {
 
         private void onSelectDataBinding() {
             Intent intent = new Intent(getActivity(), DataBindingActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectProcessInfo() {
+            Intent intent = new Intent(getActivity(), ProcessInfoActivity.class);
             startActivity(intent);
         }
     }
