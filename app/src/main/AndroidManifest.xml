@@ -62,7 +62,7 @@
         </activity>
 
         <activity
-            android:name=".marshmallow.MarshmallowActivity"
+            android:name=".requestpermission.RequestPermissionActivity"
             android:label="AndroidUI Marshmallow" >
         </activity>
 

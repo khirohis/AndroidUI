@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
 import net.hogelab.android.androidui.databinding.DataBindingActivity;
 import net.hogelab.android.androidui.loader.LoaderActivity;
-import net.hogelab.android.androidui.marshmallow.MarshmallowActivity;
+import net.hogelab.android.androidui.requestpermission.RequestPermissionActivity;
 import net.hogelab.android.androidui.mediacontrolandnotification.MediaControlAndNotificationActivity;
 import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
@@ -34,7 +34,7 @@ public class MainActivity extends PFWAppCompatActivity {
             "Media Control & Notification",
             "Loader",
             "Music Player",
-            "Marshmallow",
+            "Request Permission",
             "Data Binding",
             "Process Info",
     };
@@ -127,7 +127,7 @@ public class MainActivity extends PFWAppCompatActivity {
                             break;
 
                         case 6:
-                            onSelectMarshmallow();
+                            onSelectRequestPermission();
                             break;
 
                         case 7:
@@ -175,8 +175,8 @@ public class MainActivity extends PFWAppCompatActivity {
             startActivity(intent);
         }
 
-        private void onSelectMarshmallow() {
-            Intent intent = new Intent(getActivity(), MarshmallowActivity.class);
+        private void onSelectRequestPermission() {
+            Intent intent = new Intent(getActivity(), RequestPermissionActivity.class);
             startActivity(intent);
         }
 
