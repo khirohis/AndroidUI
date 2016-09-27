@@ -1,4 +1,4 @@
-package net.hogelab.android.androidui.marshmallow;
+package net.hogelab.android.androidui.requestpermission;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -32,21 +32,21 @@ import net.hogelab.pfw.PFWFragment;
 /**
  * Created by kobayasi on 2015/12/28.
  */
-public class MarshmallowFragment extends PFWFragment {
-    private static final String TAG = MarshmallowFragment.class.getSimpleName();
+public class RequestPermissionFragment extends PFWFragment {
+    private static final String TAG = RequestPermissionFragment.class.getSimpleName();
 
     private static final int REQUEST_READ_PHONE_STATE = 1;
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 2;
 
 
-    public static MarshmallowFragment newInstance() {
-        MarshmallowFragment fragment = new MarshmallowFragment();
+    public static RequestPermissionFragment newInstance() {
+        RequestPermissionFragment fragment = new RequestPermissionFragment();
 
         return fragment;
     }
 
 
-    public MarshmallowFragment() {
+    public RequestPermissionFragment() {
     }
 
 
@@ -55,7 +55,7 @@ public class MarshmallowFragment extends PFWFragment {
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
 
-        View rootView = inflater.inflate(R.layout.fragment_marshmallow, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_requestpermission, container, false);
         return rootView;
     }
 
@@ -69,16 +69,18 @@ public class MarshmallowFragment extends PFWFragment {
         Button button;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean hasPermission;
+            boolean hasReadPhoneStatePermission;
+            boolean hasWriteExternalStoragePermission;
+            boolean hasIgnoringBatteryOptimizationsPermission;
 
             textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
             textView.setText("Yes");
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanReadPhoneStateText);
             button = (Button) getActivity().findViewById(R.id.buttonRequestReadPhoneState);
-            hasPermission = PermissionChecker.checkSelfPermission(getActivity(),
+            hasReadPhoneStatePermission = PermissionChecker.checkSelfPermission(getActivity(),
                     Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
-            if (hasPermission) {
+            if (hasReadPhoneStatePermission) {
                 textView.setText("Yes");
                 button.setVisibility(View.GONE);
             } else {
@@ -94,9 +96,9 @@ public class MarshmallowFragment extends PFWFragment {
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanWriteExternalStorageText);
             button = (Button) getActivity().findViewById(R.id.buttonRequestWriteExternalStorage);
-            hasPermission = PermissionChecker.checkSelfPermission(getActivity(),
+            hasWriteExternalStoragePermission = PermissionChecker.checkSelfPermission(getActivity(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-            if (hasPermission) {
+            if (hasWriteExternalStoragePermission) {
                 textView.setText("Yes");
                 button.setVisibility(View.GONE);
             } else {
@@ -113,8 +115,8 @@ public class MarshmallowFragment extends PFWFragment {
             textView = (TextView) getActivity().findViewById(R.id.textViewIsIgnoringBatteryOptimizationsText);
             button = (Button) getActivity().findViewById(R.id.buttonRequestIgnoringBatteryOptimizations);
             PowerManager powerManager = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
-            hasPermission = powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName());
-            if (hasPermission) {
+            hasIgnoringBatteryOptimizationsPermission = powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName());
+            if (hasIgnoringBatteryOptimizationsPermission) {
                 textView.setText("Yes");
                 button.setVisibility(View.GONE);
             } else {
@@ -128,6 +130,16 @@ public class MarshmallowFragment extends PFWFragment {
                 });
             }
 
+            String status = Environment.getExternalStorageState();
+            Log.d(TAG, "Environment.getExternalStorageState returned: " + status);
+            status = EnvironmentCompat.getStorageState(Environment.getExternalStorageDirectory());
+            Log.d(TAG, "EnvironmentCompat.getStorageState returned: " + status);
+            boolean canWrite = Environment.getExternalStorageDirectory().canWrite();
+            Log.d(TAG, "EnvironmentCompat.getExternalStorageDirectory.canWrite returned: " + canWrite);
+
+            if (hasWriteExternalStoragePermission && !canWrite) {
+                showRestartDialog();
+            }
         } else {
             textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
             textView.setText("No");
@@ -146,19 +158,6 @@ public class MarshmallowFragment extends PFWFragment {
             button = (Button) getActivity().findViewById(R.id.buttonRequestIgnoringBatteryOptimizations);
             textView.setText("N/A");
             button.setVisibility(View.GONE);
-        }
-
-        String status = Environment.getExternalStorageState();
-        Log.d(TAG, "Environment.getExternalStorageState returned: " + status);
-
-        status = EnvironmentCompat.getStorageState(Environment.getExternalStorageDirectory());
-        Log.d(TAG, "EnvironmentCompat.getStorageState returned: " + status);
-
-        boolean canWrite = Environment.getExternalStorageDirectory().canWrite();
-        Log.d(TAG, "EnvironmentCompat.getExternalStorageDirectory.canWrite returned: " + canWrite);
-
-        if (!canWrite) {
-            showRestartDialog();
         }
     }
 

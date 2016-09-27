@@ -39,7 +39,7 @@ public class ProcessInfoFragment extends PFWFragment
     private final String LOADER_ARGUMENT_PREFIX = "prefix";
     private final String PREFERENCE_PREFIX = "prefix";
 
-    private final long REFRESH_TIME_INTERVAL = 10 * 1000;
+    private final long REFRESH_TIMER_INTERVAL = 10 * 1000;
 
     private boolean mResumed;
     private String mCurrentPrefix;
@@ -194,7 +194,7 @@ public class ProcessInfoFragment extends PFWFragment
             public void run() {
                 onTimer();
             }
-        }, REFRESH_TIME_INTERVAL, REFRESH_TIME_INTERVAL);
+        }, REFRESH_TIMER_INTERVAL);
     }
 
     private void stopTimer() {
@@ -202,6 +202,8 @@ public class ProcessInfoFragment extends PFWFragment
 
         if (mTimer != null) {
             mTimer.cancel();
+            mTimer.purge();
+
             mTimer = null;
         }
     }
@@ -222,7 +224,7 @@ public class ProcessInfoFragment extends PFWFragment
         SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(PREFERENCE_PREFIX, mCurrentPrefix);
-        editor.commit();
+        editor.apply();
 
         getLoaderManager().restartLoader(PROCESSINFO_LOADER_ID, createLoaderParam(), this);
     }

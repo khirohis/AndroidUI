@@ -1,4 +1,4 @@
-package net.hogelab.android.androidui.marshmallow;
+package net.hogelab.android.androidui.requestpermission;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,19 +10,19 @@ import net.hogelab.pfw.PFWAppCompatActivity;
 /**
  * Created by kobayasi on 2015/12/28.
  */
-public class MarshmallowActivity extends PFWAppCompatActivity {
+public class RequestPermissionActivity extends PFWAppCompatActivity {
 
-    private static final String TAG = MarshmallowActivity.class.getSimpleName();
+    private static final String TAG = RequestPermissionActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_marshmallow);
+        setContentView(R.layout.activity_requestpermission);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.layout_container, new MarshmallowFragment())
+                    .add(R.id.layout_container, new RequestPermissionFragment())
                     .commit();
         }
     }
