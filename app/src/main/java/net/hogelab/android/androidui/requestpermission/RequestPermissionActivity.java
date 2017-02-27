@@ -22,7 +22,7 @@ public class RequestPermissionActivity extends PFWAppCompatActivity {
         setContentView(R.layout.activity_requestpermission);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.layout_container, new RequestPermissionFragment())
+                    .add(R.id.layout_container, RequestPermissionFragment.newInstance())
                     .commit();
         }
     }
