@@ -1,17 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
-
-    dataBinding {
-        enabled = true
-    }
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId "net.hogelab.android.androidui"
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         resValue "string", "app_name", "AndroidUI target Gingerbread"
@@ -24,12 +21,21 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
     productFlavors {
         targetGingerbread {
         }
         targetMarshmallow {
             applicationId 'net.hogelab.android.androiduim'
-            targetSdkVersion 23
+            targetSdkVersion 25
             resValue "string", "app_name", "AndroidUI target Marshmallow"
         }
     }
@@ -37,11 +43,12 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-v4:23.2.+'
-    compile 'com.android.support:appcompat-v7:23.2.+'
-    compile 'com.android.support:design:23.2.+'
+    compile 'com.android.support:support-v4:25.1.1'
+    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile 'com.android.support:design:25.1.1'
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
     compile 'com.squareup:otto:1.3.8'
 
     releaseCompile project(path: ':pfw', configuration: 'release')

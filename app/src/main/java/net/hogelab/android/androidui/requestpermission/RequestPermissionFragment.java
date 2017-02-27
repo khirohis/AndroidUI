@@ -1,6 +1,7 @@
 package net.hogelab.android.androidui.requestpermission;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,16 +71,12 @@ public class RequestPermissionFragment extends PFWFragment {
         Button button;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean hasReadPhoneStatePermission;
-            boolean hasWriteExternalStoragePermission;
-            boolean hasIgnoringBatteryOptimizationsPermission;
-
             textView = (TextView) getActivity().findViewById(R.id.textViewIsMarshmallowText);
             textView.setText("Yes");
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanReadPhoneStateText);
             button = (Button) getActivity().findViewById(R.id.buttonRequestReadPhoneState);
-            hasReadPhoneStatePermission = PermissionChecker.checkSelfPermission(getActivity(),
+            boolean hasReadPhoneStatePermission = PermissionChecker.checkSelfPermission(getActivity(),
                     Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
             if (hasReadPhoneStatePermission) {
                 textView.setText("Yes");
@@ -96,7 +94,7 @@ public class RequestPermissionFragment extends PFWFragment {
 
             textView = (TextView) getActivity().findViewById(R.id.textViewCanWriteExternalStorageText);
             button = (Button) getActivity().findViewById(R.id.buttonRequestWriteExternalStorage);
-            hasWriteExternalStoragePermission = PermissionChecker.checkSelfPermission(getActivity(),
+            boolean hasWriteExternalStoragePermission = PermissionChecker.checkSelfPermission(getActivity(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
             if (hasWriteExternalStoragePermission) {
                 textView.setText("Yes");
@@ -115,7 +113,7 @@ public class RequestPermissionFragment extends PFWFragment {
             textView = (TextView) getActivity().findViewById(R.id.textViewIsIgnoringBatteryOptimizationsText);
             button = (Button) getActivity().findViewById(R.id.buttonRequestIgnoringBatteryOptimizations);
             PowerManager powerManager = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
-            hasIgnoringBatteryOptimizationsPermission = powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName());
+            boolean hasIgnoringBatteryOptimizationsPermission = powerManager.isIgnoringBatteryOptimizations(getActivity().getPackageName());
             if (hasIgnoringBatteryOptimizationsPermission) {
                 textView.setText("Yes");
                 button.setVisibility(View.GONE);
@@ -193,15 +191,20 @@ public class RequestPermissionFragment extends PFWFragment {
     }
 
 
+    @TargetApi(23)
     private void onRequestReadPhoneState() {
-        ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.READ_PHONE_STATE},
-                REQUEST_READ_PHONE_STATE);
+        RadioGroup radioGroup = (RadioGroup) getActivity().findViewById(R.id.radioGroupRequestType);
+        if (radioGroup.getCheckedRadioButtonId() == R.id.radioButtonRequestTypeActivity) {
+            getActivity().requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[] { Manifest.permission.READ_PHONE_STATE },
+                    REQUEST_READ_PHONE_STATE);
+        }
     }
 
     private void onRequestWriteExternalStorage() {
         ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
                 REQUEST_WRITE_EXTERNAL_STORAGE);
     }
 

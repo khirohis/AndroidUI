@@ -99,4 +99,20 @@
             android:text="Request"
             android:id="@+id/buttonRequestIgnoringBatteryOptimizations" />
     </LinearLayout>
+
+    <RadioGroup android:id="@+id/radioGroupRequestType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton android:id="@+id/radioButtonRequestTypeActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Request Type: Activity" />
+
+        <RadioButton android:id="@+id/radioButtonRequestTypeFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Request Type: Fragment" />
+    </RadioGroup>
 </LinearLayout>
