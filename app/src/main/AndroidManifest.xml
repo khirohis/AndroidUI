@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".AndroidUiApplication"
@@ -74,6 +75,11 @@
         <activity
             android:name=".processinfo.ProcessInfoActivity"
             android:label="AndroidUI Process Info" >
+        </activity>
+
+        <activity
+            android:name=".webview.WebViewActivity"
+            android:label="AndroidUI WebView" >
         </activity>
 
         <service android:name=".mediacontrolandnotification.PlayerMockService">

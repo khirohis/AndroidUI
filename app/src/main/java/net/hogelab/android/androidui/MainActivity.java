@@ -19,6 +19,7 @@ import net.hogelab.android.androidui.musicplayer.MusicPlayerActivity;
 import net.hogelab.android.androidui.musicreceiver.MusicReceiverActivity;
 import net.hogelab.android.androidui.processinfo.ProcessInfoActivity;
 import net.hogelab.android.androidui.uicatalog.UiCatalogActivity;
+import net.hogelab.android.androidui.webview.WebViewActivity;
 import net.hogelab.pfw.PFWAppCompatActivity;
 import net.hogelab.pfw.PFWListFragment;
 
@@ -37,6 +38,7 @@ public class MainActivity extends PFWAppCompatActivity {
             "Request Permission",
             "Data Binding",
             "Process Info",
+            "WebView",
     };
 
 
@@ -138,6 +140,10 @@ public class MainActivity extends PFWAppCompatActivity {
                             onSelectProcessInfo();
                             break;
 
+                        case 9:
+                            onSelectWebView();
+                            break;
+
                         default:
                             break;
                     }
@@ -187,6 +193,11 @@ public class MainActivity extends PFWAppCompatActivity {
 
         private void onSelectProcessInfo() {
             Intent intent = new Intent(getActivity(), ProcessInfoActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectWebView() {
+            Intent intent = new Intent(getActivity(), WebViewActivity.class);
             startActivity(intent);
         }
     }
