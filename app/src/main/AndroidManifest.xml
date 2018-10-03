@@ -79,7 +79,8 @@
 
         <activity
             android:name=".webview.WebViewActivity"
-            android:label="AndroidUI WebView" >
+            android:label="AndroidUI WebView"
+            android:theme="@style/AppTheme.NoActionBar.WebView" >
         </activity>
 
         <service android:name=".mediacontrolandnotification.PlayerMockService">

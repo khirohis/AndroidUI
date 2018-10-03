@@ -2,9 +2,11 @@ package net.hogelab.android.androidui.databinding;
 
 import android.content.Context;
 import android.databinding.BindingAdapter;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
 
 /**
@@ -26,7 +28,10 @@ public class DataBindingExtension {
 
             Context context = imageView.getContext();
             if (context != null) {
-                Glide.with(context).load(imageUrl).animate(android.R.anim.fade_in).into(imageView);
+                Glide.with(context)
+                        .load(imageUrl)
+                        .transition(new GenericTransitionOptions<Drawable>().transition(android.R.anim.fade_in))
+                        .into(imageView);
             }
         } else {
             // デフォルト画像をセットする
