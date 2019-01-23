@@ -245,8 +245,9 @@ public class PlayerControlManager {
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.getLong(track.duration));
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album);
+        // TODO: duration が null ?
+//                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.getLong(track.duration));
 
         mMediaSession.setMetadata(builder.build());
     }

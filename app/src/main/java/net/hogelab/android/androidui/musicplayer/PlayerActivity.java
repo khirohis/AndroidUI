@@ -1,20 +1,29 @@
 package net.hogelab.android.androidui.musicplayer;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 
 import net.hogelab.android.androidui.R;
 import net.hogelab.android.androidui.musicplayer.entity.Track;
@@ -58,8 +67,20 @@ public class PlayerActivity extends PFWAppCompatActivity {
 
         private final int TRACK_LOADER_ID = 0;
 
+        private Handler mHandler = new Handler(Looper.getMainLooper());
+        private ContentObserver mVolumeObserver = new ContentObserver(mHandler) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+
+                onVolumeChange(selfChange);
+            }
+        };
+
         private boolean mPlayerServiceBound;
         private PlayerService mPlayerService;
+
+        private SeekBar mVolumeSeekBar;
 
         private Track mTrackData;
 
@@ -88,6 +109,20 @@ public class PlayerActivity extends PFWAppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_player, container, false);
+            // キー監視よりも Settings の ContentResolver のほうが確実
+            rootView.setFocusableInTouchMode(true);
+            rootView.setOnKeyListener((View view, int i, KeyEvent keyEvent) -> {
+                if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+                    if (i == KeyEvent.KEYCODE_VOLUME_DOWN || i == KeyEvent.KEYCODE_VOLUME_UP) {
+                        onVolumeChange(false);
+                    }
+                }
+
+                return false;
+            });
+
+            mVolumeSeekBar = rootView.findViewById(R.id.volume_seek_bar);
+
             return rootView;
         }
 
@@ -95,14 +130,21 @@ public class PlayerActivity extends PFWAppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            Intent intent = new Intent(getActivity(), PlayerService.class);
-            getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
-            getActivity().startService(intent);
+            Activity activity = getActivity();
+            if (activity != null) {
+//                activity.getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mVolumeObserver);
+
+                Intent intent = new Intent(activity, PlayerService.class);
+                activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                activity.startService(intent);
+            }
         }
 
         @Override
         public void onResume() {
             super.onResume();
+
+            adjustVolumeSeekBar();
         }
 
         @Override
@@ -111,10 +153,25 @@ public class PlayerActivity extends PFWAppCompatActivity {
         }
 
         @Override
+        public void onStop() {
+            super.onStop();
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+
+            Activity activity = getActivity();
+            if (activity != null) {
+//                activity.getContentResolver().unregisterContentObserver(mVolumeObserver);
+
+                activity.unbindService(this);
+            }
+        }
+
+        @Override
         public void onDestroy() {
             super.onDestroy();
-
-            getActivity().unbindService(this);
         }
 
 
@@ -165,6 +222,27 @@ public class PlayerActivity extends PFWAppCompatActivity {
                 if (mPlayerService != null) {
                     mPlayerService.startPlay(mTrackData);
                 }
+            }
+        }
+
+
+        private void onVolumeChange(boolean selfChange) {
+            Log.d(TAG, "onVolumeChange selfChange: " + selfChange);
+
+            if (!selfChange) {
+                Runnable runnable = () -> adjustVolumeSeekBar();
+                mHandler.post(runnable);
+            }
+        }
+
+        private void adjustVolumeSeekBar() {
+            Activity activity = getActivity();
+            if (activity != null) {
+                AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+                mVolumeSeekBar.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+                mVolumeSeekBar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+
+                Log.d(TAG, "AudioManager#getStreamVolume(STREAM_MUSIC) returned: " + mVolumeSeekBar.getProgress());
             }
         }
     }

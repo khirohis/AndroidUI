@@ -86,6 +86,10 @@
             android:name=".chooser.IntentChooserActivity"
             android:label="AndroidUI Intent Chooser" >
         </activity>
+
+        <service android:name=".musicplayer.PlayerService">
+        </service>
+
         <service android:name=".mediacontrolandnotification.PlayerMockService">
             <intent-filter>
                 <action android:name="net.hogelab.android.androidui.set_playlist" />
