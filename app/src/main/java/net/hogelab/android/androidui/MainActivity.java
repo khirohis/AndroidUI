@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import net.hogelab.android.androidui.chooser.IntentChooserActivity;
 import net.hogelab.android.androidui.diagnostics.DiagnosticsActivity;
 import net.hogelab.android.androidui.databinding.DataBindingActivity;
 import net.hogelab.android.androidui.loader.LoaderActivity;
@@ -39,6 +40,7 @@ public class MainActivity extends PFWAppCompatActivity {
             "Data Binding",
             "Process Info",
             "WebView",
+            "Intent Chooser",
     };
 
 
@@ -144,6 +146,10 @@ public class MainActivity extends PFWAppCompatActivity {
                             onSelectWebView();
                             break;
 
+                        case 10:
+                            onSelectIntentChooser();
+                            break;
+
                         default:
                             break;
                     }
@@ -198,6 +204,11 @@ public class MainActivity extends PFWAppCompatActivity {
 
         private void onSelectWebView() {
             Intent intent = new Intent(getActivity(), WebViewActivity.class);
+            startActivity(intent);
+        }
+
+        private void onSelectIntentChooser() {
+            Intent intent = new Intent(getActivity(), IntentChooserActivity.class);
             startActivity(intent);
         }
     }
