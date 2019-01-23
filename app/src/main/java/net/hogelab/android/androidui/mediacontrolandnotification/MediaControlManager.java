@@ -14,7 +14,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import android.os.Build;
 import android.os.SystemClock;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -405,7 +405,7 @@ public class MediaControlManager {
     private void notifyMediaStyle(int state, PlayingInfo info) {
         PendingIntent pendingIntent = createControlActionIntent(PlayerAction.STOP);
 
-        NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle()
+        android.support.v4.media.app.NotificationCompat.MediaStyle style = new android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setMediaSession(mMediaSession.getSessionToken())
                 .setShowActionsInCompactView(0, 1, 2);
 
