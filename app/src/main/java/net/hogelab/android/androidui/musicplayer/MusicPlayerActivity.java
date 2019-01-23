@@ -1,5 +1,6 @@
 package net.hogelab.android.androidui.musicplayer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 
 import net.hogelab.android.androidui.R;
 import net.hogelab.android.androidui.musicplayer.entity.Album;
@@ -34,7 +36,8 @@ public class MusicPlayerActivity extends PFWAppCompatActivity {
         setContentView(R.layout.activity_musicreceiver);
 
         if (savedInstanceState == null) {
-            MusicPlayerAlbumFragment fragment = MusicPlayerAlbumFragment.newInstance();
+//            MusicPlayerAlbumFragment fragment = MusicPlayerAlbumFragment.newInstance();
+            MusicPlayerAllTrackFragment fragment = MusicPlayerAllTrackFragment.newInstance();
 
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.musicreceiver_container, fragment)
@@ -248,6 +251,165 @@ public class MusicPlayerActivity extends PFWAppCompatActivity {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
+        }
+    }
+
+
+    public static class MusicPlayerAllTrackFragment extends PFWListFragment
+            implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        private final String TAG = MusicPlayerAllTrackFragment.class.getSimpleName();
+
+
+        private final int ALLTRACK_LOADER_ID = 0;
+        private final String[] from = { MediaStore.Audio.Media.TITLE };
+        private final int[] to = { android.R.id.text1 };
+
+        private AllTrackAdapter mAdapter;
+
+
+        public static MusicPlayerAllTrackFragment newInstance() {
+            MusicPlayerAllTrackFragment fragment = new MusicPlayerAllTrackFragment();
+
+            return fragment;
+        }
+
+
+        public MusicPlayerAllTrackFragment() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_musicplayertrack, container, false);
+            return rootView;
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+
+            mAdapter = new AllTrackAdapter(getActivity(),
+                    android.R.layout.simple_list_item_1,
+                    null,
+                    from,
+                    to,
+                    0);
+            setListAdapter(mAdapter);
+            getListView().setFastScrollEnabled(true);
+
+            getLoaderManager().initLoader(ALLTRACK_LOADER_ID, getArguments(), this);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+
+            getLoaderManager().destroyLoader(ALLTRACK_LOADER_ID);
+        }
+
+
+        @Override
+        public void onListItemClick(ListView l, View v, int position, long id) {
+            Log.i(TAG, "Item clicked: " + id);
+
+//            Intent intent = new Intent(getActivity(), PlayerActivity.class);
+//            intent.putExtra("TRACK_ID", id);
+//            startActivity(intent);
+        }
+
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new CursorLoader(getActivity(),
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    Track.FIELDS_PROJECTION,
+                    null,
+                    null,
+                    MediaStore.Audio.Media.TITLE /* + " COLLATE NOCASE ASC" */);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            mAdapter.swapCursor(null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            mAdapter.swapCursor(data);
+        }
+
+
+        private static class AllTrackAdapter extends SimpleCursorAdapter implements SectionIndexer {
+
+            private static final String TITLE_INITIAL = " #ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzあかさたなはまやらわんアカサタナハマヤラワン漢";
+            private static final String TITLE_INITIAL_IGNORECASE = " #ABCDEFGHIJKLMNOPQRSTUVWXYZあかさたなはまやらわんアカサタナハマヤラワン漢";
+
+            private int titleIndex;
+            private AlphabetIndexer alphabetIndexer;
+
+
+            AllTrackAdapter(Context context, int layout, Cursor cursor, String[] from, int[] to, int flags) {
+                super(context, layout, cursor, from, to, flags);
+            }
+
+
+            @Override
+            public Cursor swapCursor(Cursor newCursor) {
+                if (newCursor != null) {
+                    if (alphabetIndexer != null) {
+                        alphabetIndexer.setCursor(newCursor);
+                    } else {
+                        titleIndex = newCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
+                        alphabetIndexer = new AlphabetIndexer(newCursor, titleIndex, TITLE_INITIAL, false);
+                    }
+                }
+
+                return super.swapCursor(newCursor);
+            }
+
+
+            @Override
+            public Object[] getSections() {
+                if (alphabetIndexer != null) {
+                    return alphabetIndexer.getSections();
+                }
+
+                return new String[] { " " };
+            }
+
+            @Override
+            public int getPositionForSection(int i) {
+                if (alphabetIndexer != null) {
+                    return alphabetIndexer.getPositionForSection(i);
+                }
+
+                return 0;
+            }
+
+            @Override
+            public int getSectionForPosition(int i) {
+                if (alphabetIndexer != null) {
+                    return alphabetIndexer.getSectionForPosition(i);
+                }
+
+                return 0;
+            }
         }
     }
 }
